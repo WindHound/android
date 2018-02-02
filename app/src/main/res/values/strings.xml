@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">WindHound</string>
+    <string name="username_message">Username</string>
+    <string name="password_message">Password</string>
 </resources>
