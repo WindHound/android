@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#17A6F3"
+    android:background="@color/colorPrimary"
     tools:context="windshift.windhound.LoginActivity">
 
     <EditText
@@ -66,6 +66,7 @@
         android:layout_marginTop="16dp"
         android:background="@drawable/text_edit_rect"
         android:backgroundTint="@color/colorPrimaryDark"
+        android:onClick="login"
         android:text="@string/button_login"
         android:textColor="@color/colorAccent"
         app:layout_constraintEnd_toEndOf="parent"
