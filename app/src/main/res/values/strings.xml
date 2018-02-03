@@ -2,4 +2,7 @@
     <string name="app_name">WindHound</string>
     <string name="username_message">Username</string>
     <string name="password_message">Password</string>
+    <string name="button_login">Login</string>
+    <string name="button_forgot">Forgot your password?</string>
+    <string name="button_signup">Sign Up</string>
 </resources>
