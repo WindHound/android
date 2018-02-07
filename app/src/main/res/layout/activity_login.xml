@@ -21,6 +21,7 @@
         android:hint="@string/username_message"
         android:inputType="textEmailAddress"
         android:padding="8dp"
+        android:textCursorDrawable="@drawable/black_cursor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -39,6 +40,7 @@
         android:hint="@string/password_message"
         android:inputType="textPassword"
         android:padding="8dp"
+        android:textCursorDrawable="@drawable/black_cursor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editText" />
