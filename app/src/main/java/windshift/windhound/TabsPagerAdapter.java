@@ -27,19 +27,4 @@ public class TabsPagerAdapter extends FragmentPagerAdapter {
     public int getCount() {
         return 3;
     }
-
-    //TODO get strings from strings.xml
-    @Override
-    public CharSequence getPageTitle(int position) {
-        switch(position) {
-            case 0:
-                return "Upcoming";
-            case 1:
-                return "Past";
-            case 2:
-                return "Profile";
-            default:
-                return null;
-        }
-    }
 }

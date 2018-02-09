@@ -28,6 +28,8 @@ public class HomeActivity extends AppCompatActivity {
         viewPager.setAdapter(tabsPagerAdapter);
         tabLayout = findViewById(R.id.tabLayout);
         tabLayout.setupWithViewPager(viewPager);
-
+        tabLayout.getTabAt(0).setIcon(R.drawable.ic_upcoming_event);
+        tabLayout.getTabAt(1).setIcon(R.drawable.ic_past_event);
+        tabLayout.getTabAt(2).setIcon(R.drawable.ic_profile);
     }
 }
