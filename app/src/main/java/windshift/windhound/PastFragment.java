@@ -30,7 +30,7 @@ public class PastFragment extends ListFragment {
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        Toast toast = Toast.makeText(getActivity(), "Item: " + position, Toast.LENGTH_SHORT);
+        Toast toast = Toast.makeText(getActivity(), "Past Event: " + (position + 1), Toast.LENGTH_SHORT);
         toast.show();
     }
 

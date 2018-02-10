@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 public class UpcomingFragment extends ListFragment {
 
@@ -28,8 +27,7 @@ public class UpcomingFragment extends ListFragment {
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        Toast toast = Toast.makeText(getActivity(), "Item: " + position, Toast.LENGTH_SHORT);
-        toast.show();
+        ((HomeActivity)getActivity()).displayEvent(v, position);
     }
 
 }
