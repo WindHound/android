@@ -15,6 +15,7 @@
         android:layout_marginStart="16dp"
         android:background="@drawable/text_edit_rect"
         android:backgroundTint="@color/colorPrimaryDark"
+        android:onClick="recordEvent"
         android:text="Record"
         android:textColor="@color/colorAccent"
         app:layout_constraintBottom_toBottomOf="parent"
