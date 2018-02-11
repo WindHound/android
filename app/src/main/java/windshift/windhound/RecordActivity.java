@@ -28,6 +28,9 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.gson.Gson;
+
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -54,7 +57,7 @@ public class RecordActivity extends AppCompatActivity
 
     // Temp
     private TextView textView_location;
-    private TextView textView_read;
+    private TextView textView_json;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +69,7 @@ public class RecordActivity extends AppCompatActivity
 
         // Temporary text views to display latitude and longitude
         textView_location = findViewById(R.id.textView_location);
-        textView_read = findViewById(R.id.textView_read);
+        textView_json = findViewById(R.id.textView_json);
 
         // Queue of the stored filenames.
         fileNames = new LinkedList<String>();
@@ -74,8 +77,12 @@ public class RecordActivity extends AppCompatActivity
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
-                writeLocationToFile(locationResult);
-                textView_read.setText(readLastLocationFromFile());
+                //writeLocationToFile(locationResult);
+                for (Location location : locationResult.getLocations()) {
+                    GPSRecord currentGPSRecord = new GPSRecord(location);
+                    Gson gson = new Gson();
+                    String json = gson.toJson(currentGPSRecord);
+                }
             }
         };
 
@@ -122,7 +129,7 @@ public class RecordActivity extends AppCompatActivity
     private void createLocationRequest() {
         locationRequest = new LocationRequest();
         locationRequest.setInterval(1000);
-        locationRequest.setFastestInterval(1000);
+        locationRequest.setFastestInterval(250);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
@@ -205,7 +212,7 @@ public class RecordActivity extends AppCompatActivity
                     stringBuilder.append(receiveString);
                 }
                 inputStream.close();
-                result = stringBuilder.toString();
+                result = fileNames.element() + ": " + stringBuilder.toString();
                 getApplicationContext().deleteFile(fileNames.element());
                 fileNames.remove();
             }
