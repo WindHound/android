@@ -1,6 +1,9 @@
 package windshift.windhound;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -26,50 +29,79 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Calendar;
+import java.util.LinkedList;
+import java.util.Queue;
+
 public class RecordActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
 
-    protected static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0x0;
+    // Constants needed for permissions and settings checking
+    protected static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0x1;
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
-    private Boolean mRequestingLocationUpdates;
-    private FusedLocationProviderClient mFusedLocationClient;
-    private LocationCallback mLocationCallback;
-    private LocationRequest mLocationRequest;
-    private TextView textView;
+    private Boolean requestingLocationUpdates;
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationCallback locationCallback;
+    private LocationRequest locationRequest;
+    private Queue<String> fileNames;
+
+    // Temp
+    private TextView textView_location;
+    private TextView textView_read;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
-
-        checkLocationPermissions();
-        checkLocationSettings();
-        mRequestingLocationUpdates = true;
         createLocationRequest();
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        requestingLocationUpdates = true;
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // Temporary text view to display latitude and longitude
-        textView = findViewById(R.id.textView_location);
+        // Temporary text views to display latitude and longitude
+        textView_location = findViewById(R.id.textView_location);
+        textView_read = findViewById(R.id.textView_read);
 
-        mLocationCallback = new LocationCallback() {
+        // Queue of the stored filenames.
+        fileNames = new LinkedList<String>();
+
+        locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
-                for (Location location : locationResult.getLocations()) {
-                    textView.setText("Lat: " + location.getLatitude() + ", Long: " +
-                            location.getLongitude());
-                }
+                writeLocationToFile(locationResult);
+                textView_read.setText(readLastLocationFromFile());
             }
         };
 
-        // Starts location updates.
-        onResume();
+        // Checks settings and starts location updates.
+        checkLocationSettings();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch(requestCode) {
+            case REQUEST_CHECK_SETTINGS: {
+                if (resultCode == RESULT_CANCELED) {
+                    setResult(Activity.RESULT_CANCELED);
+                    finish();
+                } else if (resultCode == RESULT_OK) {
+                    startLocationUpdates();
+                }
+                return;
+            }
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (mRequestingLocationUpdates) {
+        if (requestingLocationUpdates) {
             startLocationUpdates();
         }
     }
@@ -77,33 +109,26 @@ public class RecordActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
-        mRequestingLocationUpdates = false;
+        requestingLocationUpdates = false;
         stopLocationUpdates();
     }
 
-    private void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(1000);
-        mLocationRequest.setFastestInterval(1000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-    }
-
-    private void checkLocationPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            requestLocationPermission();
-        }
-    }
-
-    private void requestLocationPermission() {
+    private void requestLocationPermissions() {
         ActivityCompat.requestPermissions(this, new String[]
                         {Manifest.permission.ACCESS_FINE_LOCATION},
                 MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
     }
 
+    private void createLocationRequest() {
+        locationRequest = new LocationRequest();
+        locationRequest.setInterval(1000);
+        locationRequest.setFastestInterval(1000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
     private void checkLocationSettings() {
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-                .addLocationRequest(mLocationRequest);
+                .addLocationRequest(locationRequest);
         // Checks whether the current  location settings are satisfied
         SettingsClient client = LocationServices.getSettingsClient(this);
         Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
@@ -111,9 +136,7 @@ public class RecordActivity extends AppCompatActivity
         task.addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
             @Override
             public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                // All location settings are satisfied. The client can initialize
-                // location requests here.
-                // ...
+                startLocationUpdates();
             }
         });
 
@@ -121,11 +144,9 @@ public class RecordActivity extends AppCompatActivity
             @Override
             public void onFailure(@NonNull Exception e) {
                 if (e instanceof ResolvableApiException) {
-                    // Location settings are not satisfied, but this can be fixed
-                    // by showing the user a dialog.
+                    // Location settings are not satisfied.
                     try {
-                        // Show the dialog by calling startResolutionForResult(),
-                        // and check the result in onActivityResult().
+                        // Check the result in onActivityResult().
                         ResolvableApiException resolvable = (ResolvableApiException) e;
                         resolvable.startResolutionForResult(RecordActivity.this,
                                 REQUEST_CHECK_SETTINGS);
@@ -138,12 +159,62 @@ public class RecordActivity extends AppCompatActivity
     }
 
     private void startLocationUpdates() {
-        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
-                null);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback,
+                    null);
+        } else {
+            requestLocationPermissions();
+        }
     }
 
     private void stopLocationUpdates() {
-        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+        fusedLocationClient.removeLocationUpdates(locationCallback);
+    }
+
+    private void writeLocationToFile(LocationResult locationResult) {
+        String filename = Calendar.getInstance().getTimeInMillis() + ".txt";
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(getApplicationContext()
+                    .openFileOutput(filename, Context.MODE_APPEND));
+            for (Location location : locationResult.getLocations()) {
+                outputStreamWriter.write("Lat: " + location.getLatitude() + ", Long: " +
+                        location.getLongitude() + "\n\r");
+                textView_location.setText("Lat: " + location.getLatitude() + ", Long: " +
+                        location.getLongitude());
+            }
+            outputStreamWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        fileNames.add(filename);
+    }
+
+    private String readLastLocationFromFile() {
+        String result = "";
+        String file = fileNames.element();
+        try {
+            InputStream inputStream = getApplicationContext().openFileInput(file);
+            if (inputStream != null) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                String receiveString = "";
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ((receiveString = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(receiveString);
+                }
+                inputStream.close();
+                result = stringBuilder.toString();
+                getApplicationContext().deleteFile(fileNames.element());
+                fileNames.remove();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     @Override
@@ -151,11 +222,8 @@ public class RecordActivity extends AppCompatActivity
                                            int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                if (grantResults.length > 0 && grantResults[0] ==
+                if (grantResults.length > 0 && grantResults[0] !=
                         PackageManager.PERMISSION_GRANTED) {
-                    // Permission was granted
-                    Toast.makeText(this, "GPS enabled", Toast.LENGTH_SHORT);
-                } else {
                     // Permission was denied
                     finish();
                 }
@@ -169,4 +237,5 @@ public class RecordActivity extends AppCompatActivity
         onPause();
         finish();
     }
+
 }
