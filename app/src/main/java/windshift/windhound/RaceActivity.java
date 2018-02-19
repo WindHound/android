@@ -6,18 +6,18 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-public class DisplayActivity extends AppCompatActivity {
+public class RaceActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_display);
+        setContentView(R.layout.activity_race);
 
         // Set textView to passed event id
         Intent intent = getIntent();
-        String event = intent.getStringExtra(HomeActivity.EXTRA_EVENT_ID);
+        String race = intent.getStringExtra(HomeActivity.EXTRA_RACE_ID);
         TextView textView = findViewById(R.id.textView_event_id);
-        textView.setText("Event: " + event);
+        textView.setText("Race: " + race);
     }
 
     public void recordEvent(View view) {

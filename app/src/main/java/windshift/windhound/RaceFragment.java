@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 public class RaceFragment extends ListFragment {
 
@@ -21,6 +22,11 @@ public class RaceFragment extends ListFragment {
                 android.R.layout.simple_list_item_1, values);
         setListAdapter(adapter);
         return rootView;
+    }
+
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        ((HomeActivity)getActivity()).displayRace(v, position);
     }
 
 }

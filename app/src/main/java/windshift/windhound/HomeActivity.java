@@ -14,7 +14,7 @@ public class HomeActivity extends AppCompatActivity {
     private TabsPagerAdapter tabsPagerAdapter;
     private ViewPager viewPager;
     private TabLayout tabLayout;
-    public static final String EXTRA_EVENT_ID = "windshift.windhound.EVENT_ID";
+    public static final String EXTRA_RACE_ID = "windshift.windhound.RACE_ID";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,9 +39,9 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     // Called when an event is clicked
-    public void displayEvent(View view, int event) {
-        Intent intent = new Intent(this, DisplayActivity.class);
-        intent.putExtra(EXTRA_EVENT_ID, String.valueOf(event + 1));
+    public void displayRace(View view, int race) {
+        Intent intent = new Intent(this, RaceActivity.class);
+        intent.putExtra(EXTRA_RACE_ID, String.valueOf(race + 1));
         startActivity(intent);
     }
 }
