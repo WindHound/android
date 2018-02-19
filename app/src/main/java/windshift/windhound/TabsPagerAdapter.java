@@ -14,11 +14,11 @@ public class TabsPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int index) {
         switch(index) {
             case 0:
-                return new UpcomingFragment();
+                return new ChampionshipFragment();
             case 1:
-                return new PastFragment();
+                return new EventFragment();
             case 2:
-                return new ProfileFragment();
+                return new RaceFragment();
         }
         return null;
     }

@@ -33,9 +33,9 @@ public class HomeActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
 
         // Gives each tab an icon
-        tabLayout.getTabAt(0).setIcon(R.drawable.ic_upcoming_event);
-        tabLayout.getTabAt(1).setIcon(R.drawable.ic_past_event);
-        tabLayout.getTabAt(2).setIcon(R.drawable.ic_profile);
+        tabLayout.getTabAt(0).setIcon(R.drawable.ic_championship);
+        tabLayout.getTabAt(1).setIcon(R.drawable.ic_event);
+        tabLayout.getTabAt(2).setIcon(R.drawable.ic_race);
     }
 
     // Called when an event is clicked
