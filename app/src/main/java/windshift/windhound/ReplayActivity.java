@@ -16,5 +16,7 @@ public class ReplayActivity extends AppCompatActivity {
         // Gets the id of the race to be replayed
         Intent intent = getIntent();
         race_id = Integer.parseInt(intent.getStringExtra(RaceActivity.EXTRA_REPLAY_RACE_ID));
+
+        // Test
     }
 }
