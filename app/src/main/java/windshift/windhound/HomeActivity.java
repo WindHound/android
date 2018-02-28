@@ -15,6 +15,7 @@ public class HomeActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private TabLayout tabLayout;
     public static final String EXTRA_RACE_ID = "windshift.windhound.RACE_ID";
+    public static final String EXTRA_UPCOMING_BOOL = "windshift.windhound.UPCOMING_BOOL";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,9 +40,15 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     // Called when an event is clicked
-    public void displayRace(View view, int race) {
+    public void displayRace(View view, int race, boolean upcoming) {
         Intent intent = new Intent(this, RaceActivity.class);
-        intent.putExtra(EXTRA_RACE_ID, String.valueOf(race + 1));
+        if (upcoming) {
+            intent.putExtra(EXTRA_UPCOMING_BOOL, "true");
+            intent.putExtra(EXTRA_RACE_ID, String.valueOf(race + 1));
+        } else {
+            intent.putExtra(EXTRA_UPCOMING_BOOL, "false");
+            intent.putExtra(EXTRA_RACE_ID, String.valueOf(race + 1));
+        }
         startActivity(intent);
     }
 }

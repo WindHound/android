@@ -46,7 +46,9 @@ public class RaceFragment extends Fragment {
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
                                         int childPosition, long id) {
                 if (groupPosition == 0) {
-                    ((HomeActivity)getActivity()).displayRace(v, childPosition);
+                    ((HomeActivity)getActivity()).displayRace(v, childPosition, true);
+                } else if (groupPosition == 1) {
+                    ((HomeActivity)getActivity()).displayRace(v, childPosition, false);
                 }
                 return false;
             }

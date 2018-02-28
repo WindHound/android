@@ -7,7 +7,7 @@
     tools:context="windshift.windhound.RaceActivity">
 
     <Button
-        android:id="@+id/button_record"
+        android:id="@+id/button_record_replay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -15,8 +15,6 @@
         android:layout_marginStart="16dp"
         android:background="@drawable/text_edit_rect"
         android:backgroundTint="@color/colorPrimaryDark"
-        android:onClick="recordEvent"
-        android:text="Record"
         android:textColor="@color/colorAccent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

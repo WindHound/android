@@ -9,4 +9,6 @@
     <string name="title_event">Event</string>
     <string name="title_race">Race</string>
     <string name="subtitle_past_races">Past Races</string>
+    <string name="button_record">Record</string>
+    <string name="button_replay">Replay</string>
 </resources>
