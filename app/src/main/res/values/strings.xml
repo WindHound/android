@@ -8,4 +8,5 @@
     <string name="title_championship">Championship</string>
     <string name="title_event">Event</string>
     <string name="title_race">Race</string>
+    <string name="subtitle_past_races">Past Races</string>
 </resources>

@@ -1,32 +1,66 @@
 package windshift.windhound;
 
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.ExpandableListView;
 
-public class RaceFragment extends ListFragment {
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+public class RaceFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_race, container, false);
-        String[] values = new String[] {"First Race", "Race 2", "Race 3", "Race 4", "Race 5",
-                "Race 6", "Race 7", "Race 8", "Race 9", "Race 10", "Race 11", "Race 12", "Race 13",
-                "Race 14", "Race 15", "Race 16", "Race 17", "Race 18", "Race 19", "Race 20",
-                "Race 21", "Race 22", "Race 23", "Race 24", "Last Race"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_list_item_1, values);
-        setListAdapter(adapter);
-        return rootView;
-    }
 
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        ((HomeActivity)getActivity()).displayRace(v, position);
+        // Place holder data for the expandable list view
+        List<String> listHeaderData = new ArrayList<>();
+        HashMap<String, List<String>> listChildData = new HashMap<>();
+        listHeaderData.add("Upcoming");
+        listHeaderData.add("Past");
+        List<String> upcoming = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            upcoming.add("Upcoming Race " + Integer.toString(i));
+        }
+        List<String> past = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            past.add("Past Race " + Integer.toString(i));
+        }
+        listChildData.put(listHeaderData.get(0), upcoming);
+        listChildData.put(listHeaderData.get(1), past);
+
+        // Expandable list view configuration
+        ExpandableListView expandableListView = rootView.findViewById(R.id.expandableListView);
+        CustomExpandableListAdapter adapter = new CustomExpandableListAdapter(rootView.getContext(),
+                listHeaderData, listChildData);
+        expandableListView.setAdapter(adapter);
+        expandableListView.expandGroup(0);
+        expandableListView.expandGroup(1);
+        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
+                                        int childPosition, long id) {
+                if (groupPosition == 0) {
+                    ((HomeActivity)getActivity()).displayRace(v, childPosition);
+                }
+                return false;
+            }
+        });
+        // Disable collapse of expandable list view
+        expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+            @Override
+            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition,
+                                        long id) {
+                return true;
+            }
+        });
+
+        return rootView;
     }
 
 }
