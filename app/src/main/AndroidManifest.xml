@@ -12,6 +12,9 @@
         android:roundIcon="@mipmap/ic_app_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCA2cQXGhwjIhIm9l3ZZ1kjeBjjQtC3jR8" />
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,7 +25,15 @@
         <activity android:name=".HomeActivity" />
         <activity android:name=".RaceActivity" />
         <activity android:name=".RecordActivity" />
-        <activity android:name=".ReplayActivity" />
+        <activity
+            android:name=".ReplayActivity"
+            android:label="Replay">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
