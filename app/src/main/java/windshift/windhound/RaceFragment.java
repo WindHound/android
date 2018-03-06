@@ -108,18 +108,20 @@ public class RaceFragment extends Fragment {
         @Override
         protected void onPostExecute(Race[] races) {
             // Updates the expandable list view with received races
-            if (races != null && races.length != 0) {
-                upcoming.remove(0);
-                for (int i = 0; i < races.length; i++) {
-                    upcoming.add("Upcoming Race " + races[i].getID());
+            if (races != null) {
+                if (races.length != 0) {
+                    upcoming.remove(0);
+                    for (int i = 0; i < races.length; i++) {
+                        upcoming.add("Upcoming Race " + races[i].getID());
+                    }
+                    listChildData.put(listHeaderData.get(0), upcoming);
+                    adapter.notifyDataSetChanged();
+                } else {
+                    upcoming.remove(0);
+                    upcoming.add("No races exist.");
+                    listChildData.put(listHeaderData.get(0), upcoming);
+                    adapter.notifyDataSetChanged();
                 }
-                listChildData.put(listHeaderData.get(0), upcoming);
-                adapter.notifyDataSetChanged();
-            } else if (races.length != 0) {
-                upcoming.remove(0);
-                upcoming.add("No races exist.");
-                listChildData.put(listHeaderData.get(0), upcoming);
-                adapter.notifyDataSetChanged();
             }
         }
 
