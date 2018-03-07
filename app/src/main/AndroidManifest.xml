@@ -2,9 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="windshift.windhound">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.INTERNET"/> <!--legacy-->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- legacy -->
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_app"
@@ -23,6 +24,7 @@
         <activity android:name=".RaceActivity" />
         <activity android:name=".RecordActivity" />
         <activity android:name=".ReplayActivity" />
+        <activity android:name=".AddRaceActivity"></activity>
     </application>
 
 </manifest>

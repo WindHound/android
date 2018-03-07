@@ -51,4 +51,10 @@ public class HomeActivity extends AppCompatActivity {
         }
         startActivity(intent);
     }
+
+    public void addRace(View view) {
+        Intent intent = new Intent(this, AddRaceActivity.class);
+        startActivity(intent);
+    }
+
 }
