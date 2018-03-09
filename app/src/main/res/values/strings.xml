@@ -11,4 +11,6 @@
     <string name="subtitle_past_races">Past Races</string>
     <string name="button_record">Record</string>
     <string name="button_replay">Replay</string>
+    <string name="connection_error">Unable to reach server.</string>
+    <string name="connection_loading">Loading...</string>
 </resources>

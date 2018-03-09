@@ -25,6 +25,7 @@ public class RaceFragment extends Fragment {
     private List<String> listHeaderData;
     private List<String> past;
     private List<String> upcoming;
+    private Race[] races;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -40,8 +41,8 @@ public class RaceFragment extends Fragment {
         ExpandableListView expandableListView = rootView.findViewById(R.id.expandableListView);
         listHeaderData.add("Upcoming");
         listHeaderData.add("Past");
-        upcoming.add("Unable to reach server.");
-        past.add("Unable to reach server.");
+        upcoming.add(getResources().getString(R.string.connection_loading));
+        past.add(getResources().getString(R.string.connection_loading));
         listChildData.put(listHeaderData.get(0), upcoming);
         listChildData.put(listHeaderData.get(1), past);
         adapter = new CustomExpandableListAdapter(rootView.getContext(), listHeaderData,
@@ -54,9 +55,9 @@ public class RaceFragment extends Fragment {
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
                                         int childPosition, long id) {
                 if (groupPosition == 0) {
-                    ((HomeActivity)getActivity()).displayRace(v, childPosition, true);
+                    ((HomeActivity)getActivity()).displayRace(v, races[childPosition], true);
                 } else if (groupPosition == 1) {
-                    ((HomeActivity)getActivity()).displayRace(v, childPosition, false);
+                    ((HomeActivity)getActivity()).displayRace(v, races[childPosition], false);
                 }
                 return false;
             }
@@ -65,20 +66,12 @@ public class RaceFragment extends Fragment {
             @Override
             public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition,
                                         long id) {
-                // Disables collapse of expandable list view groups
-                return true;
+            // Disables collapse of expandable list view groups
+            return true;
             }
         });
 
         new HttpRequestTask().execute();
-
-        // Placeholder past races
-        past.remove(0);
-        for (int i = 0; i < 10; i++) {
-            past.add("Past Race " + Integer.toString(i + 1));
-        }
-        listChildData.put(listHeaderData.get(1), past);
-        adapter.notifyDataSetChanged();
 
         return rootView;
     }
@@ -89,18 +82,20 @@ public class RaceFragment extends Fragment {
         protected Race[] doInBackground(Void... params) {
             try {
                 // Requests all race ids, then each race object by race id
-                final String url = "http://192.168.0.51:8080/structure/all/race/";
+                final String url = getResources().getString((R.string.server_address)) +
+                        "/structure/all/race/";
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                 Long[] race_ids = restTemplate.getForObject(url, Long[].class);
-                Race[] races = new Race[race_ids.length];
+                races = new Race[race_ids.length];
                 for (int i = 0; i < race_ids.length; i++) {
-                    final String raceURL = "http://192.168.0.51:8080/structure/get/race/" +
-                            race_ids[i].toString();
+                    final String raceURL = getResources().getString((R.string.server_address)) +
+                            "/structure/get/race/" + race_ids[i].toString();
                     races[i] = restTemplate.getForObject(raceURL, Race.class);
                 }
                 return races;
             } catch (Exception e) {
+                upcoming.add(getResources().getString(R.string.connection_error));
                 e.printStackTrace();
             }
             return null;
@@ -111,19 +106,16 @@ public class RaceFragment extends Fragment {
             // Updates the expandable list view with received races
             if (races != null) {
                 if (races.length != 0) {
-                    upcoming.remove(0);
                     for (int i = 0; i < races.length; i++) {
-                        upcoming.add("Upcoming Race " + races[i].getID());
+                        upcoming.add(races[i].getName());
                     }
-                    listChildData.put(listHeaderData.get(0), upcoming);
-                    adapter.notifyDataSetChanged();
                 } else {
-                    upcoming.remove(0);
                     upcoming.add("No races exist.");
-                    listChildData.put(listHeaderData.get(0), upcoming);
-                    adapter.notifyDataSetChanged();
                 }
             }
+            upcoming.remove(0);
+            listChildData.put(listHeaderData.get(0), upcoming);
+            adapter.notifyDataSetChanged();
         }
 
     }

@@ -8,6 +8,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
+import windshift.windhound.race.Race;
+
 public class HomeActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
@@ -40,14 +42,14 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     // Called when an event is clicked
-    public void displayRace(View view, int race, boolean upcoming) {
+    public void displayRace(View view, Race race, boolean upcoming) {
         Intent intent = new Intent(this, RaceActivity.class);
         if (upcoming) {
             intent.putExtra(EXTRA_UPCOMING_BOOL, "true");
-            intent.putExtra(EXTRA_RACE_ID, String.valueOf(race + 1));
+            intent.putExtra("Race", race);
         } else {
             intent.putExtra(EXTRA_UPCOMING_BOOL, "false");
-            intent.putExtra(EXTRA_RACE_ID, String.valueOf(race + 1));
+            intent.putExtra("Race", race);
         }
         startActivity(intent);
     }
