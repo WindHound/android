@@ -20,6 +20,7 @@ import windshift.windhound.race.Race;
 
 public class RaceFragment extends Fragment {
 
+    private boolean loaded;
     private CustomExpandableListAdapter adapter;
     private HashMap<String, List<String>> listChildData;
     private List<String> listHeaderData;
@@ -32,6 +33,7 @@ public class RaceFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_race, container, false);
 
+        loaded = false;
         listChildData = new HashMap<>();
         listHeaderData = new ArrayList<>();
         past = new ArrayList<>();
@@ -39,8 +41,8 @@ public class RaceFragment extends Fragment {
 
         // Expandable list view configuration
         ExpandableListView expandableListView = rootView.findViewById(R.id.expandableListView);
-        listHeaderData.add("Upcoming");
-        listHeaderData.add("Past");
+        listHeaderData.add("Upcoming Races");
+        listHeaderData.add("Past Races");
         upcoming.add(getResources().getString(R.string.connection_loading));
         past.add(getResources().getString(R.string.connection_loading));
         listChildData.put(listHeaderData.get(0), upcoming);
@@ -54,9 +56,9 @@ public class RaceFragment extends Fragment {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
                                         int childPosition, long id) {
-                if (groupPosition == 0) {
+                if (groupPosition == 0 && loaded) {
                     ((HomeActivity)getActivity()).displayRace(v, races[childPosition], true);
-                } else if (groupPosition == 1) {
+                } else if (groupPosition == 1 & loaded) {
                     ((HomeActivity)getActivity()).displayRace(v, races[childPosition], false);
                 }
                 return false;
@@ -108,6 +110,7 @@ public class RaceFragment extends Fragment {
                 if (races.length != 0) {
                     for (int i = 0; i < races.length; i++) {
                         upcoming.add(races[i].getName());
+                        loaded = true;
                     }
                 } else {
                     upcoming.add("No races exist.");
