@@ -2,6 +2,7 @@ package windshift.windhound;
 
 import android.content.Intent;
 import android.graphics.PorterDuff;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -10,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,10 +29,14 @@ import windshift.windhound.race.Race;
  * Race activity displays information about the passed race id, with the option to record if the
  * race is upcoming, and replay if the race is in the past.
  */
-public class RaceActivity extends AppCompatActivity implements OnMapReadyCallback{
+public class RaceActivity extends AppCompatActivity implements OnMapReadyCallback,
+        SelectBoatDialogFragment.SelectBoatDialogListener {
 
+    private ArrayAdapter<String> adapter;
+    private boolean boatSelected;
     private MapView mapView;
     private Race race;
+    private String[] raceInfo;
     public static final String EXTRA_REPLAY_RACE_ID = "windshift.windhound.REPLAY_RACE_ID";
 
     @Override
@@ -39,6 +45,8 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_race);
         Intent intent = getIntent();
         race = (Race) intent.getSerializableExtra("Race");
+
+        boatSelected = false;
 
         /* Toolbar Configuration */
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -77,10 +85,10 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         DateFormat timeFormat = new SimpleDateFormat("HH:mm");
         // Add event and/or championship this race belongs to
-        String[] values = new String[] {"Date: " + dateFormat.format(race.getStartDate().getTime()),
+        raceInfo = new String[] {"Date: " + dateFormat.format(race.getStartDate().getTime()),
                 "Time: " + timeFormat.format(race.getStartDate().getTime()), "Boat: "};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1, values);
+        adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_list_item_1, raceInfo);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -118,8 +126,14 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // Called when the record button is pressed
     public void recordEvent() {
-        Intent intent = new Intent(this, RecordActivity.class);
-        startActivity(intent);
+        if (boatSelected) {
+            Intent intent = new Intent(this, RecordActivity.class);
+            startActivity(intent);
+        } else {
+            Toast toast = Toast.makeText(this, "Please select a boat.",
+                    Toast.LENGTH_SHORT);
+            toast.show();
+        }
     }
 
     // Called when the replay button is pressed
@@ -132,7 +146,14 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
     // Called when the boat list item is pressed
     public void selectBoat() {
         SelectBoatDialogFragment selectBoat = new SelectBoatDialogFragment();
-        selectBoat.show(getSupportFragmentManager(), "dialog");
+        selectBoat.show(getSupportFragmentManager(), "SelectBoatDialog");
+    }
+
+    @Override
+    public void onDialogBoatClick(String boat) {
+        raceInfo[2] = "Boat: " + boat;
+        adapter.notifyDataSetChanged();
+        boatSelected = true;
     }
 
 }
