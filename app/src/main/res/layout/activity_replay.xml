@@ -14,7 +14,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="5dp"
-        map:layout_constraintBottom_toTopOf="@+id/editText"
+        map:layout_constraintBottom_toTopOf="@+id/details"
         map:layout_constraintEnd_toEndOf="parent"
         map:layout_constraintStart_toStartOf="parent"
         map:layout_constraintTop_toBottomOf="@+id/toggleButton"
@@ -32,7 +32,7 @@
         android:thumbOffset="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText2" />
+        app:layout_constraintTop_toBottomOf="@+id/leaderboard" />
 
     <Button
         android:id="@+id/button2"
@@ -86,12 +86,12 @@
         app:layout_constraintStart_toEndOf="@+id/button2"
         app:layout_constraintTop_toBottomOf="@+id/seekBar" />
 
-    <EditText
-        android:id="@+id/editText"
+    <TextView
+        android:id="@+id/details"
         android:layout_width="0dp"
         android:layout_height="45dp"
+        android:textSize="35sp"
         android:ems="10"
-        android:inputType="textPersonName"
         android:text="Details"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -99,15 +99,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/map" />
 
-    <EditText
-        android:id="@+id/editText2"
-        android:layout_width="0dp"
-        android:layout_height="45dp"
+    <TextView
+        android:id="@+id/leaderboard"
+        android:textSize="35sp"
         android:ems="10"
-        android:inputType="textPersonName"
         android:text="Leaderboard"
+        android:singleLine="true"
+        android:marqueeRepeatLimit ="marquee_forever"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:scrollHorizontally="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="parent"/>
 
 </android.support.constraint.ConstraintLayout>

@@ -2,13 +2,17 @@ package windshift.windhound;
 
 import android.content.Intent;
 import android.os.Handler;
+import android.support.design.widget.BaseTransientBottomBar;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
-import android.widget.Button;
+import android.webkit.WebView;
 import android.widget.CompoundButton;
-import android.widget.ProgressBar;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -20,24 +24,52 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    class boat {
+
+
+    private class boat {
         ArrayList<Integer> scores;
         String name;
         Integer displayColour;
         ArrayList<LatLng> coordinates;
-        ArrayList<Integer> getScores () {return scores;}
-        String getName (){return name;}
-        Integer getDisplayColour() {return displayColour;}
-        ArrayList<LatLng> getCoordinates() {return coordinates;}
-        boat (ArrayList<Integer> scores, String name, Integer displayColour, ArrayList<LatLng> coordinates) {
+        public ArrayList<Integer> getScores () {return scores;}
+        public String getName (){return name;}
+        public Integer getDisplayColour() {return displayColour;}
+        public ArrayList<LatLng> getCoordinates() {return coordinates;}
+        boat(ArrayList<Integer> scores, String name, Integer displayColour, ArrayList<LatLng> coordinates) {
             this.scores = scores;
             this.name = name;
             this.displayColour = displayColour;
             this.coordinates = coordinates;
+        }
+        public void setScores(ArrayList<Integer> scores) {
+            this.scores = scores;
+        }
+        public void setCoordinates(ArrayList<LatLng> coordinates) {
+            this.coordinates = coordinates;
+        }
+        public void setDisplayColour(Integer displayColour) {
+            this.displayColour = displayColour;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+
+    class boatComparator implements Comparator<boat> {
+        int current=0;
+        boatComparator(int stepEntry) {
+            current=stepEntry;
+        }
+        @Override
+        public int compare(boat boat1, boat boat2) {
+            return boat2.getScores().get(current)-boat1.getScores().get(current);
         }
     }
 
@@ -67,6 +99,15 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         public void onStartTrackingTouch(SeekBar seekBar) {}
         public void onStopTrackingTouch(SeekBar seekBar) {}
     }
+    private class pathListener implements GoogleMap.OnPolylineClickListener {
+        public void onPolylineClick(Polyline polyline) {
+            int index = racePaths.indexOf(polyline);
+            boat boat = boats.get(index);
+            String name=boat.getName();
+            Snackbar boatName = Snackbar.make(findViewById(R.id.details),name, BaseTransientBottomBar.LENGTH_SHORT);
+            boatName.show();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,10 +127,14 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         ToggleButton toggle = findViewById(R.id.toggleButton);
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                TextView leaderboardView=findViewById(R.id.leaderboard);
                 if (isChecked) {
                     pause=true;
+                    leaderboardView.setEllipsize(TextUtils.TruncateAt.MARQUEE);
                 } else {
                     pause=false;
+                    leaderboardView.setEllipsize(null);
+
                 }
             }
         });
@@ -103,10 +148,13 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         ArrayList<ArrayList<LatLng>> paths = new ArrayList<>();
         ArrayList<ArrayList<Integer>> scoreList = new ArrayList<>();
         ArrayList<PolylineOptions> racePathOptions = new ArrayList<>();
+        final ArrayList<String> leaderboardUFOverTime = new ArrayList<>();
         final Long period = Long.valueOf(2000);
         final SeekBar timeline=findViewById(R.id.seekBar);
+        final TextView leaderboardView=findViewById(R.id.leaderboard);
+        leaderboardView.setSelected(true);
 
-                Runnable runnable = new Runnable() {
+        Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 if (step < maxArraySize && !pause) {
@@ -115,6 +163,8 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
                         List<LatLng> currentCoordinates = boats.get(i).coordinates.subList(0, step);
                         racePaths.get(i).setPoints(currentCoordinates);
                     }
+                    String dataUF = leaderboardUFOverTime.get(step-1);
+                    leaderboardView.setText(dataUF);
                     Integer raceCompletion = (step*100)/maxArraySize;
                     timeline.setProgress(raceCompletion);
                 }
@@ -190,13 +240,13 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         scoreList.add(greenScores);
         scoreList.add(yellowScores);
 
-        boat purpleBoat = new boat(purpleScores, "Purple", 0xff7b0083, purplePath);
+        boat purpleBoat = new boat(purpleScores, "Purple", 0x7b0083, purplePath);
         boats.add(purpleBoat);
-        boat redBoat = new boat(redScores, "Red", 0xffdd2828, redPath);
+        boat redBoat = new boat(redScores, "Red", 0xdd2828, redPath);
         boats.add(redBoat);
-        boat greenBoat = new boat(greenScores, "Green", 0xff239609, greenPath);
+        boat greenBoat = new boat(greenScores, "Green", 0x239609, greenPath);
         boats.add(greenBoat);
-        boat yellowBoat = new boat(yellowScores, "Yellow", 0xffffb400, yellowPath);
+        boat yellowBoat = new boat(yellowScores, "Yellow", 0xffb400, yellowPath);
         boats.add(yellowBoat);
 
         //Find the centre of the race.
@@ -230,6 +280,21 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
             extendArray(score, maxArraySize);
         }
 
+        // Create a list to display the leaderboard over time.
+        for (int i=0;i<maxArraySize;i++) {
+            ArrayList<boat> sorted = new ArrayList<>();
+            sorted.addAll(boats);
+            Collections.sort(sorted,new boatComparator(i));
+            String leaderboardUFEntry="";
+            for (int j=0;j<sorted.size();j++) {
+                leaderboardUFEntry=leaderboardUFEntry+sorted.get(j).getName();
+                if(j<sorted.size()-1) {
+                    leaderboardUFEntry = leaderboardUFEntry+" - ";
+                }
+            }
+            leaderboardUFOverTime.add(leaderboardUFEntry);
+        }
+
         //Centre the camera above the race
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(centre, 16));
 
@@ -237,11 +302,13 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         for (int i = 0;i<boats.size();i++) {
             PolylineOptions newLine = new PolylineOptions();
             newLine.add(boats.get(i).getCoordinates().get(0));
-            newLine.color(boats.get(i).getDisplayColour());
+            newLine.color(boats.get(i).getDisplayColour()+0xff000000);
             newLine.width(4);
             racePathOptions.add(newLine);
             racePaths.add(mMap.addPolyline(racePathOptions.get(i)));
+            racePaths.get(i).setClickable(true);
         }
+        mMap.setOnPolylineClickListener(new pathListener());
         handler.post(runnable);
 
     }
@@ -250,6 +317,10 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         startActivity(intent);
     }
     public void reset(View view) {
+        final SeekBar timeline=findViewById(R.id.seekBar);
+        ToggleButton toggle = findViewById(R.id.toggleButton);
+        timeline.setProgress(0);
         step=0;
+        toggle.setChecked(false);
     }
 }
