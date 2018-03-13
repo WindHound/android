@@ -51,4 +51,8 @@ public class Race implements Serializable {
         return endDate;
     }
 
+    public HashSet<Long> getBoats() {
+        return subordinates;
+    }
+
 }

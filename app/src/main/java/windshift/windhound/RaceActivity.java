@@ -145,7 +145,16 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // Called when the boat list item is pressed
     public void selectBoat() {
-        SelectBoatDialogFragment selectBoat = new SelectBoatDialogFragment();
+        String[] boats;
+        if (race.getBoats().size() != 0) {
+            boats = new String[race.getBoats().size()];
+            for (int i = 0; i < race.getBoats().size(); i++) {
+                boats[i] = String.valueOf(race.getBoats().toArray()[i]);
+            }
+        } else {
+            boats = new String[] {"Default"};
+        }
+        SelectBoatDialogFragment selectBoat = SelectBoatDialogFragment.newInstance(boats);
         selectBoat.show(getSupportFragmentManager(), "SelectBoatDialog");
     }
 

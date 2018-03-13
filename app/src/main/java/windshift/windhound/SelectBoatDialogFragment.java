@@ -10,8 +10,21 @@ import android.support.v7.app.AlertDialog;
 
 public class SelectBoatDialogFragment extends DialogFragment {
 
+    private String[] boats;
+
     public interface SelectBoatDialogListener {
         public void onDialogBoatClick(String boat);
+    }
+
+    static SelectBoatDialogFragment newInstance(String[] boats) {
+        SelectBoatDialogFragment selectBoat = new SelectBoatDialogFragment();
+
+        // Supply num input as an argument.
+        Bundle bundle = new Bundle();
+        bundle.putStringArray("BOATS", boats);
+        selectBoat.setArguments(bundle);
+
+        return selectBoat;
     }
 
     SelectBoatDialogListener listener;
@@ -31,15 +44,15 @@ public class SelectBoatDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        boats = getArguments().getStringArray("BOATS");
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),
                 R.style.AppThemeDialog);
         builder.setTitle("Select Boat")
-                .setItems(new String[] {"Boat 0", "Boat 1", "Boat 2"},
-                        new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
+                .setItems(boats, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
                     // The 'which' argument contains the index position of the selected item
-                    listener.onDialogBoatClick(Integer.toString(which));
+                    listener.onDialogBoatClick(boats[which]);
                 }});
         // Create the AlertDialog object and return it
         return builder.create();
