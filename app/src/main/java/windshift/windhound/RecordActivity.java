@@ -6,6 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,8 +17,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -28,9 +30,6 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.gson.Gson;
-
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -38,12 +37,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.Queue;
 
 public class RecordActivity extends AppCompatActivity
-        implements ActivityCompat.OnRequestPermissionsResultCallback {
+        implements ActivityCompat.OnRequestPermissionsResultCallback, SensorEventListener {
 
     // Constants needed for permissions and settings checking
     protected static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0x1;
@@ -55,21 +55,33 @@ public class RecordActivity extends AppCompatActivity
     private LocationRequest locationRequest;
     private Queue<String> fileNames;
 
-    // Temp
-    private TextView textView_location;
-    private TextView textView_json;
+    private Sensor accelerometer;
+    private Sensor compass;
+    private Sensor gyroscope;
+    private SensorManager sensorManager;
+
+    //test
+    private ArrayList<SensorEvent> accelerometerEvents;
+    private ArrayList<SensorEvent> compassEvents;
+    private ArrayList<SensorEvent> gyroscopeEvents;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
+
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);  // could be null
+        compass = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+
+        accelerometerEvents = new ArrayList<>();
+        compassEvents = new ArrayList<>();
+        gyroscopeEvents = new ArrayList<>();
+
         createLocationRequest();
         requestingLocationUpdates = true;
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
-        // Temporary text views to display latitude and longitude
-        textView_location = findViewById(R.id.textView_location);
-        textView_json = findViewById(R.id.textView_json);
 
         // Queue of the stored filenames.
         fileNames = new LinkedList<String>();
@@ -79,9 +91,10 @@ public class RecordActivity extends AppCompatActivity
             public void onLocationResult(LocationResult locationResult) {
                 //writeLocationToFile(locationResult);
                 for (Location location : locationResult.getLocations()) {
+                    accelerometerEvents = new ArrayList<>();
+                    compassEvents = new ArrayList<>();
+                    gyroscopeEvents = new ArrayList<>();
                     GPSRecord currentGPSRecord = new GPSRecord(location);
-                    Gson gson = new Gson();
-                    String json = gson.toJson(currentGPSRecord);
                 }
             }
         };
@@ -109,6 +122,12 @@ public class RecordActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         if (requestingLocationUpdates) {
+            sensorManager.registerListener(this, accelerometer,
+                    SensorManager.SENSOR_DELAY_FASTEST);
+            sensorManager.registerListener(this, compass,
+                    SensorManager.SENSOR_DELAY_FASTEST);
+            sensorManager.registerListener(this, gyroscope,
+                    SensorManager.SENSOR_DELAY_FASTEST);
             startLocationUpdates();
         }
     }
@@ -117,6 +136,7 @@ public class RecordActivity extends AppCompatActivity
     protected void onPause() {
         super.onPause();
         requestingLocationUpdates = false;
+        sensorManager.unregisterListener(this);
         stopLocationUpdates();
     }
 
@@ -179,6 +199,7 @@ public class RecordActivity extends AppCompatActivity
         fusedLocationClient.removeLocationUpdates(locationCallback);
     }
 
+    /*
     private void writeLocationToFile(LocationResult locationResult) {
         String filename = Calendar.getInstance().getTimeInMillis() + ".txt";
         try {
@@ -187,8 +208,6 @@ public class RecordActivity extends AppCompatActivity
             for (Location location : locationResult.getLocations()) {
                 outputStreamWriter.write("Lat: " + location.getLatitude() + ", Long: " +
                         location.getLongitude() + "\n\r");
-                textView_location.setText("Lat: " + location.getLatitude() + ", Long: " +
-                        location.getLongitude());
             }
             outputStreamWriter.close();
         } catch (IOException e) {
@@ -196,7 +215,9 @@ public class RecordActivity extends AppCompatActivity
         }
         fileNames.add(filename);
     }
+    */
 
+    /*
     private String readLastLocationFromFile() {
         String result = "";
         String file = fileNames.element();
@@ -222,6 +243,26 @@ public class RecordActivity extends AppCompatActivity
             e.printStackTrace();
         }
         return result;
+    }
+    */
+
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
+    public void onSensorChanged(SensorEvent event) {
+        switch (event.sensor.getType()) {
+            case 1:
+                accelerometerEvents.add(event);
+                break;
+            case 2:
+                compassEvents.add(event);
+                break;
+            case 4:
+                gyroscopeEvents.add(event);
+                break;
+        }
+
     }
 
     @Override
