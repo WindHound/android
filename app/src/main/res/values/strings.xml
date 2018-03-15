@@ -23,4 +23,6 @@
     <string name="race_admins_field">Admins:</string>
     <string name="race_admins_button">Add admins</string>
     <string name="search_hint">Search</string>
+    <string name="upcoming_exist">No upcoming races exist.</string>
+    <string name="past_exist">No past races exist.</string>
 </resources>

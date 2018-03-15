@@ -13,6 +13,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -27,6 +28,8 @@ public class RaceFragment extends Fragment {
     private List<String> past;
     private List<String> upcoming;
     private Race[] races;
+    private List<Race> upcomingRaces;
+    private List<Race> pastRaces;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -57,9 +60,11 @@ public class RaceFragment extends Fragment {
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
                                         int childPosition, long id) {
                 if (groupPosition == 0 && loaded) {
-                    ((HomeActivity)getActivity()).displayRace(v, races[childPosition], true);
+                    ((HomeActivity)getActivity()).displayRace(v, upcomingRaces.get(childPosition),
+                            true);
                 } else if (groupPosition == 1 & loaded) {
-                    ((HomeActivity)getActivity()).displayRace(v, races[childPosition], false);
+                    ((HomeActivity)getActivity()).displayRace(v, pastRaces.get(childPosition),
+                            false);
                 }
                 return false;
             }
@@ -85,19 +90,20 @@ public class RaceFragment extends Fragment {
             try {
                 // Requests all race ids, then each race object by race id
                 final String url = getResources().getString((R.string.server_address)) +
-                        "/structure/all/race/";
+                        "/structure/race/all/";
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                 Long[] race_ids = restTemplate.getForObject(url, Long[].class);
                 races = new Race[race_ids.length];
                 for (int i = 0; i < race_ids.length; i++) {
                     final String raceURL = getResources().getString((R.string.server_address)) +
-                            "/structure/get/race/" + race_ids[i].toString();
+                            "/structure/race/get/" + race_ids[i].toString();
                     races[i] = restTemplate.getForObject(raceURL, Race.class);
                 }
                 return races;
             } catch (Exception e) {
                 upcoming.add(getResources().getString(R.string.connection_error));
+                past.add(getResources().getString(R.string.connection_error));
                 e.printStackTrace();
             }
             return null;
@@ -108,16 +114,27 @@ public class RaceFragment extends Fragment {
             // Updates the expandable list view with received races
             if (races != null) {
                 if (races.length != 0) {
+                    upcomingRaces = new ArrayList<>();
+                    pastRaces = new ArrayList<>();
                     for (int i = 0; i < races.length; i++) {
-                        upcoming.add(races[i].getName());
+                        if (races[i].getEndDate().after(Calendar.getInstance().getTime())) {
+                            upcomingRaces.add(races[i]);
+                            upcoming.add(races[i].getName());
+                        } else {
+                            pastRaces.add(races[i]);
+                            past.add(races[i].getName());
+                        }
                         loaded = true;
                     }
-                } else {
-                    upcoming.add("No races exist.");
                 }
+                if (upcoming.size() == 1)
+                    upcoming.add(getResources().getString(R.string.upcoming_exist));
+                if (past.size() == 1) past.add(getResources().getString(R.string.past_exist));
             }
             upcoming.remove(0);
+            past.remove(0);
             listChildData.put(listHeaderData.get(0), upcoming);
+            listChildData.put(listHeaderData.get(1), past);
             adapter.notifyDataSetChanged();
         }
 
