@@ -20,4 +20,7 @@
     <string name="race_end_time_field">End time:</string>
     <string name="ok">OK</string>
     <string name="cancel">CANCEL</string>
+    <string name="race_admins_field">Admins:</string>
+    <string name="race_admins_button">Add admins</string>
+    <string name="search_hint">Search</string>
 </resources>

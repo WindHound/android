@@ -13,11 +13,9 @@
         android:roundIcon="@mipmap/ic_app_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_api_key" />
@@ -33,7 +31,9 @@
         <activity android:name=".RaceActivity" />
         <activity android:name=".RecordActivity" />
         <activity android:name=".ReplayActivity" />
-        <activity android:name=".AddRaceActivity"></activity>
+        <activity android:name=".AddRaceActivity" />
+        <activity android:name=".SelectActivity">
+        </activity>
     </application>
 
 </manifest>

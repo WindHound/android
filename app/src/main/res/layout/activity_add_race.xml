@@ -32,7 +32,7 @@
 
             <TextView
                 android:id="@+id/textView_race_name"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:text="@string/race_name_field"
@@ -62,13 +62,15 @@
 
             <TextView
                 android:id="@+id/textView_start_date"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
                 android:layout_marginStart="16dp"
                 android:text="@string/race_start_date_field"
                 android:textColor="@android:color/black"
                 android:textSize="18sp"
                 app:layout_constraintBaseline_toBaselineOf="@+id/button_start_date"
+                app:layout_constraintEnd_toStartOf="@+id/button_start_date"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <Button
@@ -88,13 +90,15 @@
 
             <TextView
                 android:id="@+id/textView_start_time"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
                 android:layout_marginStart="16dp"
                 android:text="@string/race_start_time_field"
                 android:textColor="@android:color/black"
                 android:textSize="18sp"
                 app:layout_constraintBaseline_toBaselineOf="@+id/button_start_time"
+                app:layout_constraintEnd_toStartOf="@+id/button_start_time"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <Button
@@ -113,13 +117,15 @@
 
             <TextView
                 android:id="@+id/textView_end_date"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
                 android:layout_marginStart="16dp"
                 android:text="@string/race_end_date_field"
                 android:textColor="@android:color/black"
                 android:textSize="18sp"
                 app:layout_constraintBaseline_toBaselineOf="@+id/button_end_date"
+                app:layout_constraintEnd_toStartOf="@+id/button_end_date"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <Button
@@ -139,13 +145,15 @@
 
             <TextView
                 android:id="@+id/textView_end_time"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
                 android:layout_marginStart="16dp"
                 android:text="@string/race_end_time_field"
                 android:textColor="@android:color/black"
                 android:textSize="18sp"
                 app:layout_constraintBaseline_toBaselineOf="@+id/button_end_time"
+                app:layout_constraintEnd_toStartOf="@+id/button_end_time"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <Button
@@ -161,6 +169,34 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/button_end_date"
                 app:layout_constraintTop_toBottomOf="@+id/button_end_date" />
+
+            <TextView
+                android:id="@+id/textView_admins"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="16dp"
+                android:text="@string/race_admins_field"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                app:layout_constraintBaseline_toBaselineOf="@+id/button_admins"
+                app:layout_constraintEnd_toStartOf="@+id/button_admins"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <Button
+                android:id="@+id/button_admins"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="16dp"
+                android:onClick="addAdmins"
+                android:text="@string/race_admins_button"
+                android:textAppearance="@android:style/TextAppearance.Material.Small"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/button_end_time"
+                app:layout_constraintTop_toBottomOf="@+id/button_end_time" />
 
         </android.support.constraint.ConstraintLayout>
 
