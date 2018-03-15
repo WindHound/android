@@ -13,4 +13,11 @@
     <string name="button_replay">Replay</string>
     <string name="connection_error">Unable to reach server.</string>
     <string name="connection_loading">Loading...</string>
+    <string name="race_name_field">Race name:</string>
+    <string name="race_start_date_field">Start date:</string>
+    <string name="race_start_time_field">Start time:</string>
+    <string name="race_end_date_field">End date:</string>
+    <string name="race_end_time_field">End time:</string>
+    <string name="ok">OK</string>
+    <string name="cancel">CANCEL</string>
 </resources>
