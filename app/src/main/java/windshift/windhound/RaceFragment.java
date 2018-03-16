@@ -21,7 +21,8 @@ import windshift.windhound.race.Race;
 
 public class RaceFragment extends Fragment {
 
-    private boolean loaded;
+    private boolean loadedUpcoming;
+    private boolean loadedPast;
     private CustomExpandableListAdapter adapter;
     private HashMap<String, List<String>> listChildData;
     private List<String> listHeaderData;
@@ -36,7 +37,8 @@ public class RaceFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_race, container, false);
 
-        loaded = false;
+        loadedUpcoming = false;
+        loadedPast = false;
         listChildData = new HashMap<>();
         listHeaderData = new ArrayList<>();
         past = new ArrayList<>();
@@ -59,10 +61,10 @@ public class RaceFragment extends Fragment {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
                                         int childPosition, long id) {
-                if (groupPosition == 0 && loaded) {
+                if (groupPosition == 0 && loadedUpcoming) {
                     ((HomeActivity)getActivity()).displayRace(v, upcomingRaces.get(childPosition),
                             true);
-                } else if (groupPosition == 1 & loaded) {
+                } else if (groupPosition == 1 & loadedPast) {
                     ((HomeActivity)getActivity()).displayRace(v, pastRaces.get(childPosition),
                             false);
                 }
@@ -124,12 +126,20 @@ public class RaceFragment extends Fragment {
                             pastRaces.add(races[i]);
                             past.add(races[i].getName());
                         }
-                        loaded = true;
                     }
                 }
-                if (upcoming.size() == 1)
+                if (upcoming.size() == 1) {
+                    loadedUpcoming = false;
                     upcoming.add(getResources().getString(R.string.upcoming_exist));
-                if (past.size() == 1) past.add(getResources().getString(R.string.past_exist));
+                } else {
+                    loadedUpcoming = true;
+                }
+                if (past.size() == 1) {
+                    loadedPast = false;
+                    past.add(getResources().getString(R.string.past_exist));
+                } else {
+                    loadedPast = true;
+                }
             }
             upcoming.remove(0);
             past.remove(0);
