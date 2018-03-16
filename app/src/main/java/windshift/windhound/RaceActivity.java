@@ -109,11 +109,11 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         // Add a marker in Sydney, Australia,
         // and move the map's camera to the same location.
-        LatLng bristol = new LatLng(51.454514, -2.587910);
-        googleMap.addMarker(new MarkerOptions().position(bristol)
-                .title("Marker in Bristol"));
+        LatLng chewValleyLake = new LatLng(51.3362, -2.6186);
+        googleMap.addMarker(new MarkerOptions().position(chewValleyLake)
+                .title("Marker in Chew Valley Lake"));
         googleMap.moveCamera(CameraUpdateFactory.zoomTo(10));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(bristol));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(chewValleyLake));
         mapView.onResume();
     }
 
