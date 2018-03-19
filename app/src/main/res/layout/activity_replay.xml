@@ -2,6 +2,7 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/overallLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="windshift.windhound.ReplayActivity">
@@ -16,8 +17,9 @@
         android:layout_marginTop="5dp"
         map:layout_constraintBottom_toTopOf="@+id/details"
         map:layout_constraintEnd_toEndOf="parent"
+        map:layout_constraintHorizontal_bias="0.0"
         map:layout_constraintStart_toStartOf="parent"
-        map:layout_constraintTop_toBottomOf="@+id/toggleButton"
+        map:layout_constraintTop_toBottomOf="@+id/leaderboard"
         tools:context="map.windhound.ReplayActivity" />
 
     <SeekBar
@@ -25,94 +27,50 @@
         android:layout_width="0dp"
         android:layout_height="36dp"
         android:progressDrawable="@drawable/custom_seekbar"
-        android:thumb="@drawable/custom_thumb"
         android:splitTrack="false"
-        android:paddingLeft="0dp"
-        android:paddingRight="0dp"
+        android:thumb="@drawable/custom_thumb"
         android:thumbOffset="0dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/leaderboard" />
-
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="0dp"
-        android:layout_height="45dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="5dp"
-        android:text="Back"
-        android:onClick="back"
-        android:background="@drawable/text_edit_rect"
-        android:backgroundTint="@color/colorPrimaryDark"
-        android:textColor="@color/colorAccent"
-        app:layout_constraintEnd_toStartOf="@+id/toggleButton"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/seekBar" />
-
-    <Button
-        android:id="@+id/button7"
-        android:layout_width="0dp"
-        android:layout_height="45dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="5dp"
-        android:text="Replay"
-        android:onClick="reset"
-        android:background="@drawable/text_edit_rect"
-        android:backgroundTint="@color/colorPrimaryDark"
-        android:textColor="@color/colorAccent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/toggleButton"
-        app:layout_constraintTop_toBottomOf="@+id/seekBar" />
+        app:layout_constraintStart_toEndOf="@id/toggleButton"
+        app:layout_constraintBottom_toBottomOf="@+id/map" />
 
     <ToggleButton
         android:id="@+id/toggleButton"
-        android:layout_width="0dp"
-        android:layout_height="45dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="5dp"
-        android:textOff="Pause"
-        android:textOn="Resume"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:background="@drawable/text_edit_rect"
         android:backgroundTint="@color/colorPrimaryDark"
         android:textColor="@color/colorAccent"
-        app:layout_constraintBottom_toTopOf="@+id/map"
-        app:layout_constraintEnd_toStartOf="@+id/button7"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/button2"
-        app:layout_constraintTop_toBottomOf="@+id/seekBar" />
+        android:textOff="||"
+        android:textOn=">"
+        app:layout_constraintBottom_toBottomOf="@+id/map"
+        app:layout_constraintEnd_toStartOf="@id/seekBar"
+        app:layout_constraintHorizontal_bias="0.1"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/details"
         android:layout_width="0dp"
         android:layout_height="45dp"
-        android:textSize="35sp"
         android:ems="10"
         android:text="Details"
+        android:textSize="35sp"
+        android:onClick="detailsExpandAndContract"
+        android:clickable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/map" />
 
-    <TextView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/leaderboard"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
         android:textSize="35sp"
-        android:ems="10"
-        android:text="Leaderboard"
-        android:singleLine="true"
-        android:marqueeRepeatLimit ="marquee_forever"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:scrollHorizontally="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="parent"/>
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"/>
 
 </android.support.constraint.ConstraintLayout>
