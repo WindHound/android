@@ -21,6 +21,7 @@ public class ChampionshipFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_championship, container, false);
 
+        /*
         String[] values = new String[] {"First Championship", "Championship 2", "Championship 3",
                 "Championship 4", "Championship 5", "Championship 6", "Championship 7",
                 "Championship 8", "Championship 9", "Championship 10", "Championship 11",
@@ -35,6 +36,7 @@ public class ChampionshipFragment extends Fragment {
 
         adapter = new RecyclerAdapter(values);
         recyclerView.setAdapter(adapter);
+        */
 
         return rootView;
     }

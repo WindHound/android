@@ -1,5 +1,6 @@
 package windshift.windhound.fragments;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -8,13 +9,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
 import windshift.windhound.R;
 import windshift.windhound.adapters.TabsAdapter;
+import windshift.windhound.objects.Event;
 
 public class EventFragment extends Fragment {
 
     private ViewPager viewPager;
+    private TabsAdapter tabsAdapter;
     private TabLayout tabLayout;
+
+    private Event[] events;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -29,14 +42,75 @@ public class EventFragment extends Fragment {
         tabLayout.getTabAt(0).setText(getResources().getString(R.string.title_ongoing));
         tabLayout.getTabAt(1).setText(getResources().getString(R.string.title_past));
 
+        new HttpRequestTask().execute();
+
         return rootView;
     }
 
     private void setupViewPager(ViewPager viewPager) {
-        TabsAdapter tabsAdapter = new TabsAdapter(getChildFragmentManager());
+        tabsAdapter = new TabsAdapter(getChildFragmentManager());
         tabsAdapter.addFragment(new OngoingEventFragment());
         tabsAdapter.addFragment(new PastEventFragment());
         viewPager.setAdapter(tabsAdapter);
+    }
+
+    public Event[] getEvents() {
+        return events;
+    }
+
+    public Event getEvent(Long id) {
+        for (int i = 0; i < events.length; i++) {
+            if (events[i].getID() == id) {
+                return events[i];
+            }
+        }
+        return null;
+    }
+
+    private class HttpRequestTask extends AsyncTask<Void, Void, Event[]> {
+
+        @Override
+        protected Event[] doInBackground(Void... params) {
+            try {
+                // Requests all race ids, then each race object by race id
+                final String url = getResources().getString((R.string.server_address)) +
+                        "/structure/event/all/";
+                RestTemplate restTemplate = new RestTemplate();
+                restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+                Long[] event_ids = restTemplate.getForObject(url, Long[].class);
+                events = new Event[event_ids.length];
+                for (int i = 0; i < event_ids.length; i++) {
+                    final String eventURL = getResources().getString((R.string.server_address)) +
+                            "/structure/event/get/" + event_ids[i].toString();
+                    events[i] = restTemplate.getForObject(eventURL, Event.class);
+                }
+                return events;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Event[] events) {
+            if (events != null) {
+                List<Event> ongoing = new ArrayList<>();
+                List<Event> past = new ArrayList<>();
+                Calendar now = Calendar.getInstance();
+                for (int i = 0; i < events.length; i++) {
+                    if (events[i].getEndDate().after(now)) {
+                        ongoing.add(events[i]);
+                    } else {
+                        past.add(events[i]);
+                    }
+                }
+                OngoingEventFragment oef = (OngoingEventFragment) tabsAdapter.getItem(0);
+                oef.updateList(ongoing);
+                PastEventFragment pef = (PastEventFragment) tabsAdapter.getItem(1);
+                pef.updateList(past);
+            }
+        }
+
     }
 
 }

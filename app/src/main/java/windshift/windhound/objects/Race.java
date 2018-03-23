@@ -1,4 +1,4 @@
-package windshift.windhound.race;
+package windshift.windhound.objects;
 
 import java.io.Serializable;
 import java.util.Calendar;
@@ -13,7 +13,6 @@ public class Race implements Serializable {
     HashSet<Long> admins;
     HashSet<Long> subordinates;
     HashSet<Long> managers;
-    // time and date
 
     public Race() {
 

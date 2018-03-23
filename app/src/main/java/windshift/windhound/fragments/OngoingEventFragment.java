@@ -7,35 +7,55 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.List;
 
 import windshift.windhound.R;
 import windshift.windhound.adapters.RecyclerAdapter;
+import windshift.windhound.objects.Event;
 
 public class OngoingEventFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
+    private View rootView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_ongoing_event, container,
+        rootView = inflater.inflate(R.layout.fragment_ongoing_event, container,
                 false);
 
         recyclerView = rootView.findViewById(R.id.recyclerView);
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
 
-        String[] values = new String[] {"First Event", "Event 2", "Event 3", "Event 4", "Event 5",
-                "Event 6", "Event 7", "Event 8", "Event 9", "Event 10", "Event 11", "Event 12",
-                "Event 13", "Event 14", "Event 15", "Event 16", "Event 17", "Event 18", "Event 19",
-                "Event 20", "Event 21", "Event 22", "Event 23", "Event 24", "Last Event"};
-
-        adapter = new RecyclerAdapter(values);
-        recyclerView.setAdapter(adapter);
-
         return rootView;
+    }
+
+    public void updateList(List<Event> events) {
+        Long[] ids = new Long[events.size()];
+        String[] names = new String[events.size()];
+        String[] dates = new String[events.size()];
+        DateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy");
+        for (int i = 0; i < events.size(); i++) {
+            ids[i] = events.get(i).getID();
+            names[i] = events.get(i).getName();
+            String start = dateFormat.format(events.get(i).getStartDate().getTime());
+            String end = dateFormat.format(events.get(i).getEndDate().getTime());
+            if (start.equals(end)) {
+                dates[i] = start;
+            } else {
+                dates[i] = start + " - " + end;
+            }
+        }
+        adapter = new RecyclerAdapter(ids, names, dates);
+        rootView.findViewById(R.id.progressBar).setVisibility(View.GONE);
+        recyclerView.setAdapter(adapter);
     }
 
 }

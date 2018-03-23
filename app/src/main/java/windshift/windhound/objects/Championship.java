@@ -1,4 +1,4 @@
-package windshift.windhound.race;
+package windshift.windhound.objects;
 
 import java.io.Serializable;
 import java.util.Calendar;

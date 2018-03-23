@@ -2,7 +2,6 @@ package windshift.windhound;
 
 import android.content.Intent;
 import android.graphics.PorterDuff;
-import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -23,7 +22,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-import windshift.windhound.race.Race;
+import windshift.windhound.objects.Race;
 
 /*
  * Race activity displays information about the passed race id, with the option to record if the
