@@ -15,8 +15,9 @@ import java.util.List;
 import windshift.windhound.R;
 import windshift.windhound.adapters.RecyclerAdapter;
 import windshift.windhound.objects.Event;
+import windshift.windhound.objects.Race;
 
-public class PastEventFragment extends Fragment {
+public class PastRaceFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
@@ -26,7 +27,7 @@ public class PastEventFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_past_event, container, false);
+        rootView = inflater.inflate(R.layout.fragment_past_race, container, false);
 
         recyclerView = rootView.findViewById(R.id.recyclerView);
         layoutManager = new LinearLayoutManager(getActivity());
@@ -35,23 +36,23 @@ public class PastEventFragment extends Fragment {
         return rootView;
     }
 
-    public void updateList(List<Event> events) {
-        Long[] ids = new Long[events.size()];
-        String[] names = new String[events.size()];
-        String[] dates = new String[events.size()];
+    public void updateList(List<Race> races) {
+        Long[] ids = new Long[races.size()];
+        String[] names = new String[races.size()];
+        String[] dates = new String[races.size()];
         DateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy");
-        for (int i = 0; i < events.size(); i++) {
-            ids[i] = events.get(i).getID();
-            names[i] = events.get(i).getName();
-            String start = dateFormat.format(events.get(i).getStartDate().getTime());
-            String end = dateFormat.format(events.get(i).getEndDate().getTime());
+        for (int i = 0; i < races.size(); i++) {
+            ids[i] = races.get(i).getID();
+            names[i] = races.get(i).getName();
+            String start = dateFormat.format(races.get(i).getStartDate().getTime());
+            String end = dateFormat.format(races.get(i).getEndDate().getTime());
             if (start.equals(end)) {
                 dates[i] = start;
             } else {
                 dates[i] = start + " - " + end;
             }
         }
-        adapter = new RecyclerAdapter(ids, 3, names, dates);
+        adapter = new RecyclerAdapter(ids, 5, names, dates);
         rootView.findViewById(R.id.progressBar).setVisibility(View.GONE);
         recyclerView.setAdapter(adapter);
     }

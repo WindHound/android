@@ -10,6 +10,7 @@ import android.view.View;
 
 import windshift.windhound.adapters.TabsAdapter;
 import windshift.windhound.fragments.EventFragment;
+import windshift.windhound.fragments.RaceFragment;
 import windshift.windhound.objects.Event;
 import windshift.windhound.objects.Race;
 
@@ -50,24 +51,31 @@ public class HomeActivity extends AppCompatActivity {
         viewPager.setAdapter(tabsAdapter);
     }
 
-    // Called when an event is pressed
-    public void displayEvent(Long id) {
-        EventFragment ef = (EventFragment) tabsAdapter.getItem(1);
-        Event current = ef.getEvent(id);
-        // Launch display event activity
-    }
-
-    // Called when a race is pressed
-    public void displayRace(View view, Race race, boolean upcoming) {
-        Intent intent = new Intent(this, RaceActivity.class);
-        if (upcoming) {
-            intent.putExtra(EXTRA_UPCOMING_BOOL, "true");
-            intent.putExtra("Race", race);
-        } else {
-            intent.putExtra(EXTRA_UPCOMING_BOOL, "false");
-            intent.putExtra("Race", race);
+    public void display(Long id, int type) {
+        switch (type) {
+            case 0: // ongoing championship
+            case 1: // past championship
+                break;
+            case 2: // ongoing event
+            case 3: // past event
+                EventFragment ef = (EventFragment) tabsAdapter.getItem(1);
+                Event currentEvent = ef.getEvent(id);
+                // Launch display event activity
+                break;
+            case 4: // ongoing race
+            case 5: // past race
+                RaceFragment rf = (RaceFragment) tabsAdapter.getItem(2);
+                Race currentRace = rf.getRace(id);
+                Intent intent = new Intent(this, RaceActivity.class);
+                intent.putExtra("Race", currentRace);
+                if (type == 4) {
+                    intent.putExtra(EXTRA_UPCOMING_BOOL, "true");
+                } else {
+                    intent.putExtra(EXTRA_UPCOMING_BOOL, "false");
+                }
+                startActivity(intent);
+                break;
         }
-        startActivity(intent);
     }
 
     // Called when the floating add button is pressed in the race tab

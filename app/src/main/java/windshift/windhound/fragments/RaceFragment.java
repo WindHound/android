@@ -18,20 +18,20 @@ import java.util.List;
 
 import windshift.windhound.R;
 import windshift.windhound.adapters.TabsAdapter;
-import windshift.windhound.objects.Event;
+import windshift.windhound.objects.Race;
 
-public class EventFragment extends Fragment {
+public class RaceFragment extends Fragment {
 
     private ViewPager viewPager;
     private TabsAdapter tabsAdapter;
     private TabLayout tabLayout;
 
-    private Event[] events;
+    private Race[] races;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_event, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_race, container, false);
 
         viewPager = rootView.findViewById(R.id.viewPager);
         setupViewPager(viewPager);
@@ -48,38 +48,38 @@ public class EventFragment extends Fragment {
 
     private void setupViewPager(ViewPager viewPager) {
         tabsAdapter = new TabsAdapter(getChildFragmentManager());
-        tabsAdapter.addFragment(new OngoingEventFragment());
-        tabsAdapter.addFragment(new PastEventFragment());
+        tabsAdapter.addFragment(new OngoingRaceFragment());
+        tabsAdapter.addFragment(new PastRaceFragment());
         viewPager.setAdapter(tabsAdapter);
     }
 
-    public Event getEvent(Long id) {
-        for (int i = 0; i < events.length; i++) {
-            if (events[i].getID() == id) {
-                return events[i];
+    public Race getRace(Long id) {
+        for (int i = 0; i < races.length; i++) {
+            if (races[i].getID() == id) {
+                return races[i];
             }
         }
         return null;
     }
 
-    private class HttpRequestTask extends AsyncTask<Void, Void, Event[]> {
+    private class HttpRequestTask extends AsyncTask<Void, Void, Race[]> {
 
         @Override
-        protected Event[] doInBackground(Void... params) {
+        protected Race[] doInBackground(Void... params) {
             try {
-                // Requests all event ids, then each race object by event id
+                // Requests all race ids, then each race object by race id
                 final String url = getResources().getString((R.string.server_address)) +
-                        "/structure/event/all/";
+                        "/structure/race/all/";
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-                Long[] event_ids = restTemplate.getForObject(url, Long[].class);
-                events = new Event[event_ids.length];
-                for (int i = 0; i < event_ids.length; i++) {
-                    final String eventURL = getResources().getString((R.string.server_address)) +
-                            "/structure/event/get/" + event_ids[i].toString();
-                    events[i] = restTemplate.getForObject(eventURL, Event.class);
+                Long[] race_ids = restTemplate.getForObject(url, Long[].class);
+                races = new Race[race_ids.length];
+                for (int i = 0; i < race_ids.length; i++) {
+                    final String raceURL = getResources().getString((R.string.server_address)) +
+                            "/structure/race/get/" + race_ids[i].toString();
+                    races[i] = restTemplate.getForObject(raceURL, Race.class);
                 }
-                return events;
+                return races;
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -87,21 +87,21 @@ public class EventFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(Event[] events) {
-            if (events != null) {
-                List<Event> ongoing = new ArrayList<>();
-                List<Event> past = new ArrayList<>();
+        protected void onPostExecute(Race[] races) {
+            if (races != null) {
+                List<Race> ongoing = new ArrayList<>();
+                List<Race> past = new ArrayList<>();
                 Calendar now = Calendar.getInstance();
-                for (int i = 0; i < events.length; i++) {
-                    if (events[i].getEndDate().after(now)) {
-                        ongoing.add(events[i]);
+                for (int i = 0; i < races.length; i++) {
+                    if (races[i].getEndDate().after(now)) {
+                        ongoing.add(races[i]);
                     } else {
-                        past.add(events[i]);
+                        past.add(races[i]);
                     }
                 }
-                OngoingEventFragment oef = (OngoingEventFragment) tabsAdapter.getItem(0);
+                OngoingRaceFragment oef = (OngoingRaceFragment) tabsAdapter.getItem(0);
                 oef.updateList(ongoing);
-                PastEventFragment pef = (PastEventFragment) tabsAdapter.getItem(1);
+                PastRaceFragment pef = (PastRaceFragment) tabsAdapter.getItem(1);
                 pef.updateList(past);
             }
         }

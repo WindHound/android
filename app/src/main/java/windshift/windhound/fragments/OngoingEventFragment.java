@@ -53,7 +53,7 @@ public class OngoingEventFragment extends Fragment {
                 dates[i] = start + " - " + end;
             }
         }
-        adapter = new RecyclerAdapter(ids, names, dates);
+        adapter = new RecyclerAdapter(ids, 2, names, dates);
         rootView.findViewById(R.id.progressBar).setVisibility(View.GONE);
         recyclerView.setAdapter(adapter);
     }

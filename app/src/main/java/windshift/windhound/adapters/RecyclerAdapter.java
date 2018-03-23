@@ -14,12 +14,17 @@ import windshift.windhound.R;
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
     private Long[] ids;
+    private int object;
+    // 0 = ongoing championship, 1 = past championship
+    // 2 = ongoing event, 3 = past event
+    // 4 = ongoing race, 5 = past race
     private String[] dataset;
     private String[] dateset;
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         private long id;
+        private int object;
         private final TextView textViewName;
         private final TextView textViewDate;
         private View view;
@@ -31,12 +36,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
             textViewDate = v.findViewById(R.id.textView_date);
         }
 
-        public void setOnClick(final Long id) {
+        public void setOnClick(final Long id, final int object) {
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     HomeActivity ha = (HomeActivity) view.getContext();
-                    ha.displayEvent(id);
+                    ha.display(id, object);
                 }
             });
         }
@@ -51,8 +56,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
     }
 
-    public RecyclerAdapter(Long[] ids, String[] dataset, String[] dateset) {
+    public RecyclerAdapter(Long[] ids, int object, String[] dataset, String[] dateset) {
         this.ids = ids;
+        this.object = object;
         this.dataset = dataset;
         this.dateset = dateset;
     }
@@ -70,7 +76,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
-        viewHolder.setOnClick(ids[position]);
+        viewHolder.setOnClick(ids[position], object);
         viewHolder.getTextViewName().setText(dataset[position]);
         viewHolder.getTextViewDate().setText(dateset[position]);
     }
