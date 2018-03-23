@@ -13,6 +13,7 @@ public class Championship implements Serializable {
     Calendar endDate;
     HashSet<Long> admins;
     HashSet<Long> subordinates;
+    HashSet<Long> managers;
 
     public Championship() {
 
@@ -23,7 +24,8 @@ public class Championship implements Serializable {
                          Calendar a_startDate,
                          Calendar a_endDate,
                          HashSet<Long> a_admins,
-                         HashSet<Long> a_events) {
+                         HashSet<Long> a_events,
+                         HashSet<Long> a_managers) {
         id = a_id;
         name = a_name;
         startDate = a_startDate;

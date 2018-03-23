@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import windshift.windhound.adapters.TabsAdapter;
+import windshift.windhound.fragments.ChampionshipFragment;
 import windshift.windhound.fragments.EventFragment;
 import windshift.windhound.fragments.RaceFragment;
 import windshift.windhound.objects.Event;
