@@ -8,15 +8,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
+import windshift.windhound.adapters.TabsAdapter;
+import windshift.windhound.fragments.EventFragment;
 import windshift.windhound.race.Race;
 
 public class HomeActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
-    private TabsPagerAdapter tabsPagerAdapter;
     private ViewPager viewPager;
     private TabLayout tabLayout;
-    public static final String EXTRA_RACE_ID = "windshift.windhound.RACE_ID";
     public static final String EXTRA_UPCOMING_BOOL = "windshift.windhound.UPCOMING_BOOL";
 
     @Override
@@ -28,20 +28,27 @@ public class HomeActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Enables the tab layout with swiping
-        tabsPagerAdapter = new TabsPagerAdapter(getSupportFragmentManager());
+        // Enables the tab layout
         viewPager = findViewById(R.id.viewPager);
-        viewPager.setAdapter(tabsPagerAdapter);
+        setupViewPager(viewPager);
         tabLayout = findViewById(R.id.tabLayout);
         tabLayout.setupWithViewPager(viewPager);
 
-        // Gives each tab an icon
-        tabLayout.getTabAt(0).setIcon(R.drawable.ic_championship);
-        tabLayout.getTabAt(1).setIcon(R.drawable.ic_event);
-        tabLayout.getTabAt(2).setIcon(R.drawable.ic_race);
+        // Tab layout configuration
+        tabLayout.getTabAt(0).setText(R.string.title_championship);
+        tabLayout.getTabAt(1).setText(R.string.title_event);
+        tabLayout.getTabAt(2).setText(R.string.title_race);
     }
 
-    // Called when an event is clicked
+    private void setupViewPager(ViewPager viewPager) {
+        TabsAdapter tabsAdapter = new TabsAdapter(getSupportFragmentManager());
+        tabsAdapter.addFragment(new ChampionshipFragment());
+        tabsAdapter.addFragment(new EventFragment());
+        tabsAdapter.addFragment(new RaceFragment());
+        viewPager.setAdapter(tabsAdapter);
+    }
+
+    // Called when an race is pressed
     public void displayRace(View view, Race race, boolean upcoming) {
         Intent intent = new Intent(this, RaceActivity.class);
         if (upcoming) {
@@ -54,6 +61,7 @@ public class HomeActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    // Called when the floating add button is pressed in the race tab
     public void addRace(View view) {
         Intent intent = new Intent(this, AddRaceActivity.class);
         startActivity(intent);

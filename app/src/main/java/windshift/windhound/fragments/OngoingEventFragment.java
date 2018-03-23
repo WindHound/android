@@ -1,4 +1,4 @@
-package windshift.windhound;
+package windshift.windhound.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,9 +8,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import windshift.windhound.R;
 import windshift.windhound.adapters.RecyclerAdapter;
 
-public class ChampionshipFragment extends Fragment {
+public class OngoingEventFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
@@ -19,19 +20,17 @@ public class ChampionshipFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_championship, container, false);
-
-        String[] values = new String[] {"First Championship", "Championship 2", "Championship 3",
-                "Championship 4", "Championship 5", "Championship 6", "Championship 7",
-                "Championship 8", "Championship 9", "Championship 10", "Championship 11",
-                "Championship 12", "Championship 13", "Championship 14", "Championship 15",
-                "Championship 16", "Championship 17", "Championship 18", "Championship 19",
-                "Championship 20", "Championship 21", "Championship 22", "Championship 23",
-                "Championship 24", "Last Championship"};
+        View rootView = inflater.inflate(R.layout.fragment_ongoing_event, container,
+                false);
 
         recyclerView = rootView.findViewById(R.id.recyclerView);
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
+
+        String[] values = new String[] {"First Event", "Event 2", "Event 3", "Event 4", "Event 5",
+                "Event 6", "Event 7", "Event 8", "Event 9", "Event 10", "Event 11", "Event 12",
+                "Event 13", "Event 14", "Event 15", "Event 16", "Event 17", "Event 18", "Event 19",
+                "Event 20", "Event 21", "Event 22", "Event 23", "Event 24", "Last Event"};
 
         adapter = new RecyclerAdapter(values);
         recyclerView.setAdapter(adapter);

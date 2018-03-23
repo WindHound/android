@@ -5,9 +5,9 @@
     <string name="button_login">Login</string>
     <string name="button_forgot">Forgot your password?</string>
     <string name="button_signup">Sign Up</string>
-    <string name="title_championship">Championship</string>
-    <string name="title_event">Event</string>
-    <string name="title_race">Race</string>
+    <string name="title_championship">Championships</string>
+    <string name="title_event">Events</string>
+    <string name="title_race">Races</string>
     <string name="subtitle_past_races">Past Races</string>
     <string name="button_record">Record</string>
     <string name="button_replay">Replay</string>
@@ -25,4 +25,6 @@
     <string name="search_hint">Search</string>
     <string name="upcoming_exist">No upcoming races exist.</string>
     <string name="past_exist">No past races exist.</string>
+    <string name="title_ongoing">Ongoing</string>
+    <string name="title_past">Past</string>
 </resources>
