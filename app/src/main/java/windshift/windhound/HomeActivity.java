@@ -45,6 +45,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setupViewPager(ViewPager viewPager) {
+        viewPager.setOffscreenPageLimit(2);
         tabsAdapter = new TabsAdapter(getSupportFragmentManager());
         tabsAdapter.addFragment(new ChampionshipFragment());
         tabsAdapter.addFragment(new EventFragment());
