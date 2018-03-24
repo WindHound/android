@@ -27,4 +27,5 @@
     <string name="past_exist">No past races exist.</string>
     <string name="title_ongoing">Ongoing</string>
     <string name="title_past">Past</string>
+    <string name="button_save">Save</string>
 </resources>

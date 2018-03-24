@@ -18,7 +18,7 @@ public class Race implements Serializable {
 
     }
 
-    private Race(Long          a_id,
+    public Race(Long          a_id,
                  String        a_name,
                  Calendar a_startDate,
                  Calendar a_endDate,
