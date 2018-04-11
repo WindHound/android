@@ -69,7 +69,7 @@ public class RaceFragment extends Fragment {
             try {
                 // Requests all race ids, then each race object by race id
                 final String url = getResources().getString((R.string.server_address)) +
-                        "/structure/race/all/";
+                        "/structure/race/all";
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                 Long[] race_ids = restTemplate.getForObject(url, Long[].class);

@@ -69,7 +69,7 @@ public class EventFragment extends Fragment {
             try {
                 // Requests all event ids, then each race object by event id
                 final String url = getResources().getString((R.string.server_address)) +
-                        "/structure/event/all/";
+                        "/structure/event/all";
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                 Long[] event_ids = restTemplate.getForObject(url, Long[].class);

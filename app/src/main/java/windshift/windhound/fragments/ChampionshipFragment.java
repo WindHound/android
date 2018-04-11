@@ -70,7 +70,7 @@ public class ChampionshipFragment extends Fragment {
             try {
                 // Requests all championship ids, then each championship object by championship id
                 final String url = getResources().getString((R.string.server_address)) +
-                        "/structure/championship/all/";
+                        "/structure/championship/all";
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                 Long[] championship_ids = restTemplate.getForObject(url, Long[].class);
