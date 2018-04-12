@@ -22,6 +22,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import windshift.windhound.dialogs.SelectBoatDialogFragment;
 import windshift.windhound.objects.Race;
 
 /*
@@ -36,6 +37,7 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MapView mapView;
     private Race race;
     private String[] raceInfo;
+    public static final String EXTRA_RACE_ID = "windshift.windhound.RACE_ID";
     public static final String EXTRA_REPLAY_RACE_ID = "windshift.windhound.REPLAY_RACE_ID";
 
     @Override
@@ -127,6 +129,7 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void recordEvent() {
         if (boatSelected) {
             Intent intent = new Intent(this, RecordActivity.class);
+            intent.putExtra(EXTRA_RACE_ID, race.getID());
             startActivity(intent);
         } else {
             Toast toast = Toast.makeText(this, "Please select a boat.",

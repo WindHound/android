@@ -13,7 +13,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Stops the on-screen keyboard automatically popping up
+        // stops the on-screen keyboard automatically popping up
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.
                 SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }

@@ -1,4 +1,4 @@
-package windshift.windhound;
+package windshift.windhound.dialogs;
 
 import android.app.Dialog;
 import android.app.TimePickerDialog;
@@ -7,6 +7,9 @@ import android.support.v4.app.DialogFragment;
 import android.text.format.DateFormat;
 
 import java.util.Calendar;
+
+import windshift.windhound.AddRaceActivity;
+import windshift.windhound.R;
 
 public class TimePickerDialogFragment extends DialogFragment {
 

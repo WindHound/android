@@ -28,17 +28,17 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        // Enables the toolbar
+        // enables the toolbar
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Enables the tab layout
+        // enables the tab layout
         viewPager = findViewById(R.id.viewPager);
         setupViewPager(viewPager);
         tabLayout = findViewById(R.id.tabLayout);
         tabLayout.setupWithViewPager(viewPager);
 
-        // Tab layout configuration
+        // tab layout configuration
         tabLayout.getTabAt(0).setText(R.string.title_championship);
         tabLayout.getTabAt(1).setText(R.string.title_event);
         tabLayout.getTabAt(2).setText(R.string.title_race);
@@ -53,6 +53,7 @@ public class HomeActivity extends AppCompatActivity {
         viewPager.setAdapter(tabsAdapter);
     }
 
+    // Called when a race/event/championship entry is selected
     public void display(Long id, int type) {
         switch (type) {
             case 0: // ongoing championship
@@ -60,12 +61,14 @@ public class HomeActivity extends AppCompatActivity {
                 break;
             case 2: // ongoing event
             case 3: // past event
+                // both event cases handled
                 EventFragment ef = (EventFragment) tabsAdapter.getItem(1);
                 Event currentEvent = ef.getEvent(id);
-                // Launch display event activity
+                // launch display event activity
                 break;
             case 4: // ongoing race
             case 5: // past race
+                // both race cases handled
                 RaceFragment rf = (RaceFragment) tabsAdapter.getItem(2);
                 Race currentRace = rf.getRace(id);
                 Intent intent = new Intent(this, RaceActivity.class);

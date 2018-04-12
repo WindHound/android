@@ -1,12 +1,13 @@
-package windshift.windhound;
+package windshift.windhound.dialogs;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+
+import windshift.windhound.R;
 
 public class SelectBoatDialogFragment extends DialogFragment {
 
@@ -16,7 +17,7 @@ public class SelectBoatDialogFragment extends DialogFragment {
         public void onDialogBoatClick(String boat);
     }
 
-    static SelectBoatDialogFragment newInstance(String[] boats) {
+    public static SelectBoatDialogFragment newInstance(String[] boats) {
         SelectBoatDialogFragment selectBoat = new SelectBoatDialogFragment();
 
         // Supply num input as an argument.

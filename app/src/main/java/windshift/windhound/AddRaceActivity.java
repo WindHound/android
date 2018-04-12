@@ -25,6 +25,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 
+import windshift.windhound.dialogs.DatePickerDialogFragment;
+import windshift.windhound.dialogs.TimePickerDialogFragment;
 import windshift.windhound.objects.Race;
 
 public class AddRaceActivity extends AppCompatActivity implements

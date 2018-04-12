@@ -49,6 +49,8 @@ public class RecordActivity extends AppCompatActivity
     protected static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0x1;
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
+    private int race_id;
+
     private Boolean requestingLocationUpdates;
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
@@ -69,6 +71,10 @@ public class RecordActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
+
+        // Get the id of the race to be recorded
+        Intent intent = getIntent();
+        race_id = Integer.parseInt(intent.getStringExtra(RaceActivity.EXTRA_RACE_ID));
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);  // could be null
@@ -94,7 +100,7 @@ public class RecordActivity extends AppCompatActivity
                     accelerometerEvents = new ArrayList<>();
                     compassEvents = new ArrayList<>();
                     gyroscopeEvents = new ArrayList<>();
-                    GPSRecord currentGPSRecord = new GPSRecord(location);
+                    //GPSRecord currentGPSRecord = new GPSRecord(location);
                 }
             }
         };
