@@ -31,6 +31,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Text;
 
 import java.lang.reflect.Array;
@@ -38,10 +40,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
 import windshift.windhound.race.RecyclerViewAdapter;
+//import windshift.windhound.objects.MoveDataDTO;
 
 public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallback, RecyclerViewAdapter.ItemClickListener {
 
@@ -111,7 +115,7 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
 
     private long race_id;
     private int currentBoatNum = 0;
-    private ArrayList<Long> boat_ids =new ArrayList<>();
+    private ArrayList<Long> boat_ids;
     Integer numberOfBoats = 0;
     private ArrayList<Integer> displayColours = new ArrayList<>();
     Boolean pause=false;
@@ -145,7 +149,6 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         constraintSet.applyTo(current);
     }
 
-
     private class timelineListener implements SeekBar.OnSeekBarChangeListener {
         public void onProgressChanged(SeekBar seekBar, int progress,
                                       boolean fromUser) {
@@ -178,12 +181,17 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_replay);
 
-        // Gets the id of the race to be replayed
-        Intent intent = getIntent();
         //TODO **UNCOMMENT THIS WHEN MOVING TO SERVER**
-//        race_id = Integer.toLong(Integer.parseInt(intent.getStringExtra(RaceActivity.EXTRA_REPLAY_RACE_ID)));
+//        // Gets the id of the race to be replayed
+//        Intent intent = getIntent();
+//        race_id = Long.valueOf(Integer.parseInt(intent.getStringExtra(RaceActivity.EXTRA_REPLAY_RACE_ID)));
+//        //Placeholder code
+//        HashSet<Long> boatIdsIn = Race(race_id).getBoats();
+//        //End placeholder code
+//        boat_ids = new ArrayList<>(boatIdsIn);
 
-        //TODO **COMMENT THIS OUT WHEN MOVING TO SERER**
+
+        //TODO **COMMENT THIS OUT WHEN MOVING TO SERVER**
         race_id=0;
         boat_ids.add((long) 0);
         boat_ids.add((long) 1);
@@ -226,6 +234,23 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
     ArrayList<Pair<Calendar,LatLng>> getTimesAndLocationsForBoat(long raceID, long boatID) {
         ArrayList<Pair<Calendar,LatLng>> output = new ArrayList<>();
 
+        //TODO: Uncomment this when moving to server.
+//        final String url = getResources().getString((R.string.server_address)) +
+//                "/movedata/get/"+Long.toString(raceID);
+//        RestTemplate restTemplate = new RestTemplate();
+//        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+//        MoveDataDTO[] moves = restTemplate.getForObject(url, MoveDataDTO[].class);
+//        for (int i=0;i<moves.length;i++) {
+//            LatLng coords = new LatLng(moves[i].getLatitude(),moves[i].getLongitude());
+//            Calendar time=Calendar.getInstance();
+//            time.setTimeInMillis(moves[i].getTimeMilli());
+//            Pair<Calendar,LatLng> p = new Pair(time,coords);
+//            output.add(p);
+//        }
+
+
+
+        //TODO: Comment this out when moving to server.
         //Temporary way to 'fake' getting data from server.
         if (raceID==0) {
             if (boatID==0) {
@@ -343,38 +368,7 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
             }
         };
 
-        //For now, fake data is here.  Eventually we will want to import data instead.
 
-        Integer purpleScore1 = 100;
-        Integer purpleScore2 = 100;
-        Integer purpleScore3 = 100;
-        Integer purpleScore4 = 100;
-        Integer redScore1 = 60;
-        Integer redScore2 = 60;
-        Integer greenScore1 = 80;
-        Integer greenScore2 = 80;
-        Integer greenScore3 = 80;
-        Integer yellowScore1 = 70;
-        Integer yellowScore2 = 85;
-        Integer yellowScore3 = 100;
-        Integer yellowScore4 = 110;
-        ArrayList<Integer> purpleScores = new ArrayList<>();
-        purpleScores.add(purpleScore1);
-        purpleScores.add(purpleScore2);
-        purpleScores.add(purpleScore3);
-        purpleScores.add(purpleScore4);
-        ArrayList<Integer> redScores = new ArrayList<>();
-        redScores.add(redScore1);
-        redScores.add(redScore2);
-        ArrayList<Integer> greenScores = new ArrayList<>();
-        greenScores.add(greenScore1);
-        greenScores.add(greenScore2);
-        greenScores.add(greenScore3);
-        ArrayList<Integer> yellowScores = new ArrayList<>();
-        yellowScores.add(yellowScore1);
-        yellowScores.add(yellowScore2);
-        yellowScores.add(yellowScore3);
-        yellowScores.add(yellowScore4);
         for (int i=0;i<numberOfBoats;i++) {
             Long boat_id = boat_ids.get(i);
             ArrayList<LatLng> path = sortLocationsByTime(getTimesAndLocationsForBoat(race_id,boat_id));
