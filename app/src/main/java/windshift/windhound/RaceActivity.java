@@ -38,7 +38,6 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Race race;
     private String[] raceInfo;
     public static final String EXTRA_RACE_ID = "windshift.windhound.RACE_ID";
-    public static final String EXTRA_REPLAY_RACE_ID = "windshift.windhound.REPLAY_RACE_ID";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,7 +128,7 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void recordEvent() {
         if (boatSelected) {
             Intent intent = new Intent(this, RecordActivity.class);
-            intent.putExtra(EXTRA_RACE_ID, race.getID());
+            intent.putExtra(EXTRA_RACE_ID, String.valueOf(race.getID()));
             startActivity(intent);
         } else {
             Toast toast = Toast.makeText(this, "Please select a boat.",
@@ -140,8 +139,9 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // Called when the replay button is pressed
     public void replayEvent() {
-        Intent intent = new Intent(this, ReplayActivity.class);
-        intent.putExtra(EXTRA_REPLAY_RACE_ID, race.getID());
+        // TODO change from record to replay
+        Intent intent = new Intent(this, RecordActivity.class);
+        intent.putExtra(EXTRA_RACE_ID, String.valueOf(race.getID()));
         startActivity(intent);
     }
 

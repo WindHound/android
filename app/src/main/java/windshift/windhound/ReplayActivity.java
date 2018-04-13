@@ -14,7 +14,9 @@ public class ReplayActivity extends AppCompatActivity {
         setContentView(R.layout.activity_replay);
 
         // Gets the id of the race to be replayed
+        /*
         Intent intent = getIntent();
-        race_id = Integer.parseInt(intent.getStringExtra(RaceActivity.EXTRA_REPLAY_RACE_ID));
+        race_id = Integer.parseInt(intent.getStringExtra(RaceActivity.EXTRA_RACE_ID));
+        */
     }
 }

@@ -11,6 +11,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -30,6 +31,12 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.gson.Gson;
+
+import org.springframework.http.converter.ByteArrayHttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -40,16 +47,24 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
+
+import windshift.windhound.objects.MoveDataDTO;
 
 public class RecordActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback, SensorEventListener {
 
-    // Constants needed for permissions and settings checking
+    // constants needed for permissions and settings checking
     protected static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0x1;
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
-    private int race_id;
+    // ids to record for
+    private long competitor_id;
+    private long race_id;
+    private long boat_id;
+
+    MoveDataDTO currentMoveData;
 
     private Boolean requestingLocationUpdates;
     private FusedLocationProviderClient fusedLocationClient;
@@ -62,7 +77,7 @@ public class RecordActivity extends AppCompatActivity
     private Sensor gyroscope;
     private SensorManager sensorManager;
 
-    //test
+    // test
     private ArrayList<SensorEvent> accelerometerEvents;
     private ArrayList<SensorEvent> compassEvents;
     private ArrayList<SensorEvent> gyroscopeEvents;
@@ -72,13 +87,19 @@ public class RecordActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
 
-        // Get the id of the race to be recorded
+        // get the id of the race to be recorded
         Intent intent = getIntent();
-        race_id = Integer.parseInt(intent.getStringExtra(RaceActivity.EXTRA_RACE_ID));
+        race_id = Long.parseLong(intent.getStringExtra(RaceActivity.EXTRA_RACE_ID));
+
+        // TODO remove testing ids
+        competitor_id = 8;
+        race_id = 41;
+        boat_id = 8;
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);  // could be null
-        compass = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        // default sensors could be NULL
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        compass = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
         gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
         accelerometerEvents = new ArrayList<>();
@@ -90,17 +111,49 @@ public class RecordActivity extends AppCompatActivity
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         // Queue of the stored filenames.
-        fileNames = new LinkedList<String>();
+        //fileNames = new LinkedList<String>();
 
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 //writeLocationToFile(locationResult);
                 for (Location location : locationResult.getLocations()) {
+                    List<Float> x = new ArrayList<>();
+                    List<Float> y = new ArrayList<>();
+                    List<Float> z = new ArrayList<>();
+                    List<Float> angle = new ArrayList<>();
+                    List<Float> dX = new ArrayList<>();
+                    List<Float> dY = new ArrayList<>();
+                    List<Float> dZ = new ArrayList<>();
+                    try {
+                        x.add(accelerometerEvents.get(0).values[0]);
+                        y.add(accelerometerEvents.get(0).values[1]);
+                        z.add(accelerometerEvents.get(0).values[2]);
+                        angle.add(compassEvents.get(0).values[0]);
+                        dX.add(gyroscopeEvents.get(0).values[0]);
+                        dY.add(gyroscopeEvents.get(0).values[1]);
+                        dZ.add(gyroscopeEvents.get(0).values[2]);
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+                    currentMoveData = new MoveDataDTO();
+                    currentMoveData.setCompetitorID(competitor_id);
+                    currentMoveData.setBoatID(boat_id);
+                    currentMoveData.setRaceID(race_id);
+                    currentMoveData.setTimeMilli(location.getTime());
+                    currentMoveData.setLatitude((float) location.getLatitude());
+                    currentMoveData.setLongitude((float) location.getLongitude());
+                    currentMoveData.setX(x);
+                    currentMoveData.setY(y);
+                    currentMoveData.setZ(z);
+                    currentMoveData.setAngle(angle);
+                    currentMoveData.setdX(dX);
+                    currentMoveData.setdY(dY);
+                    currentMoveData.setdZ(dZ);
+                    new HttpRequestTask().execute();
                     accelerometerEvents = new ArrayList<>();
                     compassEvents = new ArrayList<>();
                     gyroscopeEvents = new ArrayList<>();
-                    //GPSRecord currentGPSRecord = new GPSRecord(location);
                 }
             }
         };
@@ -261,7 +314,7 @@ public class RecordActivity extends AppCompatActivity
             case 1:
                 accelerometerEvents.add(event);
                 break;
-            case 2:
+            case 3:
                 compassEvents.add(event);
                 break;
             case 4:
@@ -290,6 +343,33 @@ public class RecordActivity extends AppCompatActivity
     public void stopRecord(View view) {
         onPause();
         finish();
+    }
+
+    private class HttpRequestTask extends AsyncTask<Void, Void, Long> {
+
+        @Override
+        protected Long doInBackground(Void... params) {
+            try {
+                final String url = getResources().getString((R.string.server_address)) +
+                        "/movedata/add";
+                RestTemplate restTemplate = new RestTemplate();
+                restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+                restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+                Long id = restTemplate.postForObject(url, currentMoveData, Long.class);
+                return id;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Long id) {
+            if (id != null) {
+
+            }
+        }
+
     }
 
 }
