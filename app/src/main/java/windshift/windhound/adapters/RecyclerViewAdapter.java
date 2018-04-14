@@ -1,4 +1,4 @@
-package windshift.windhound.race;
+package windshift.windhound.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import windshift.windhound.R;
 

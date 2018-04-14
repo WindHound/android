@@ -26,9 +26,11 @@
         android:background="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:tabTextColor="@color/colorAccent" />
+        app:tabIndicatorHeight="1dp"
+        app:tabTextAppearance="@style/TabTheme"
+        app:tabTextColor="@color/colorAccent"/>
 
-    <android.support.v4.view.ViewPager
+    <windshift.windhound.custom.NonSwipeViewPager
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
