@@ -50,8 +50,16 @@ public class Race implements Serializable {
         return endDate;
     }
 
+    public HashSet<Long> getAdmins() {
+        return admins;
+    }
+
     public HashSet<Long> getBoats() {
         return subordinates;
+    }
+
+    public HashSet<Long> getEvents() {
+        return managers;
     }
 
 }

@@ -141,7 +141,7 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void replayEvent() {
         // TODO change from record to replay
         Intent intent = new Intent(this, ReplayActivity.class);
-        intent.putExtra(EXTRA_RACE_ID, String.valueOf(race.getID()));
+        intent.putExtra("Race", race);
         startActivity(intent);
     }
 

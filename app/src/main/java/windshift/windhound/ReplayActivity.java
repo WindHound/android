@@ -1,5 +1,6 @@
 package windshift.windhound;
 
+import android.content.Intent;
 import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Random;
 
 import windshift.windhound.adapters.RecyclerViewAdapter;
+import windshift.windhound.objects.Race;
 //import windshift.windhound.objects.MoveDataDTO;
 
 public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallback, RecyclerViewAdapter.ItemClickListener {
@@ -100,6 +102,7 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
     }
 
     private long race_id;
+    private Race race;
     private int currentBoatNum = 0;
     private ArrayList<Long> boat_ids;
     Integer numberOfBoats = 0;
@@ -167,10 +170,11 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_replay);
 
+        // get the race object to be replayed
+        Intent intent = getIntent();
+        race = (Race) intent.getSerializableExtra("Race");
+
         //TODO **UNCOMMENT THIS WHEN MOVING TO SERVER**
-//        // Gets the id of the race to be replayed
-//        Intent intent = getIntent();
-//        race_id = Long.parseLong(intent.getStringExtra(RaceActivity.EXTRA_RACE_ID)));
 //        //Placeholder code
 //        HashSet<Long> boatIdsIn = Race(race_id).getBoats();
 //        //End placeholder code
