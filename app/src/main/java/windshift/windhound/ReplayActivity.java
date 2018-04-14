@@ -1,26 +1,18 @@
 package windshift.windhound;
 
-import android.content.Intent;
-import android.graphics.Color;
 import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
-import android.support.design.widget.BaseTransientBottomBar;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
-import android.text.method.ScrollingMovementMethod;
 import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.view.View;
-import android.webkit.WebView;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -31,20 +23,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.web.client.RestTemplate;
-import org.w3c.dom.Text;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
-import windshift.windhound.race.RecyclerViewAdapter;
+import windshift.windhound.adapters.RecyclerViewAdapter;
 //import windshift.windhound.objects.MoveDataDTO;
 
 public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallback, RecyclerViewAdapter.ItemClickListener {
@@ -184,7 +170,7 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         //TODO **UNCOMMENT THIS WHEN MOVING TO SERVER**
 //        // Gets the id of the race to be replayed
 //        Intent intent = getIntent();
-//        race_id = Long.valueOf(Integer.parseInt(intent.getStringExtra(RaceActivity.EXTRA_REPLAY_RACE_ID)));
+//        race_id = Long.parseLong(intent.getStringExtra(RaceActivity.EXTRA_RACE_ID)));
 //        //Placeholder code
 //        HashSet<Long> boatIdsIn = Race(race_id).getBoats();
 //        //End placeholder code
@@ -193,6 +179,7 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
 
         //TODO **COMMENT THIS OUT WHEN MOVING TO SERVER**
         race_id=0;
+        boat_ids = new ArrayList<>();
         boat_ids.add((long) 0);
         boat_ids.add((long) 1);
         boat_ids.add((long) 2);

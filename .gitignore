@@ -7,4 +7,6 @@
 /build
 /captures
 .externalNativeBuild
-/src/main/res/values/server.xml
+.idea/vcs.xml
+.idea/modules.xml
+secrets.xml

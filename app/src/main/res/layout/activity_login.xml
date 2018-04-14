@@ -7,6 +7,20 @@
     android:background="@color/colorPrimary"
     tools:context="windshift.windhound.LoginActivity">
 
+    <ImageView
+        android:id="@+id/imageView_logo"
+        android:layout_width="256dp"
+        android:layout_height="256dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/editText_username"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_logo" />
+
     <EditText
         android:id="@+id/editText_username"
         android:layout_width="match_parent"
@@ -44,20 +58,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editText_username" />
-
-    <ImageView
-        android:id="@+id/imageView_logo"
-        android:layout_width="256dp"
-        android:layout_height="256dp"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/editText_username"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_logo" />
 
     <Button
         android:id="@+id/button_login"

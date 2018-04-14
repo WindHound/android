@@ -6,15 +6,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -30,7 +33,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 
-import org.json.JSONObject;
+import org.springframework.http.converter.ByteArrayHttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -38,16 +44,27 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
-public class RecordActivity extends AppCompatActivity
-        implements ActivityCompat.OnRequestPermissionsResultCallback {
+import windshift.windhound.objects.MoveDataDTO;
 
-    // Constants needed for permissions and settings checking
+public class RecordActivity extends AppCompatActivity
+        implements ActivityCompat.OnRequestPermissionsResultCallback, SensorEventListener {
+
+    // constants needed for permissions and settings checking
     protected static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0x1;
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
+
+    // ids to record for
+    private long competitor_id;
+    private long race_id;
+    private long boat_id;
+
+    MoveDataDTO currentMoveData;
 
     private Boolean requestingLocationUpdates;
     private FusedLocationProviderClient fusedLocationClient;
@@ -55,33 +72,88 @@ public class RecordActivity extends AppCompatActivity
     private LocationRequest locationRequest;
     private Queue<String> fileNames;
 
-    // Temp
-    private TextView textView_location;
-    private TextView textView_json;
+    private Sensor accelerometer;
+    private Sensor compass;
+    private Sensor gyroscope;
+    private SensorManager sensorManager;
+
+    // test
+    private ArrayList<SensorEvent> accelerometerEvents;
+    private ArrayList<SensorEvent> compassEvents;
+    private ArrayList<SensorEvent> gyroscopeEvents;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
+
+        // get the id of the race to be recorded
+        Intent intent = getIntent();
+        race_id = Long.parseLong(intent.getStringExtra(RaceActivity.EXTRA_RACE_ID));
+
+        // TODO remove testing ids
+        competitor_id = 8;
+        race_id = 41;
+        boat_id = 8;
+
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        // default sensors could be NULL
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        compass = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+        gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+
+        accelerometerEvents = new ArrayList<>();
+        compassEvents = new ArrayList<>();
+        gyroscopeEvents = new ArrayList<>();
+
         createLocationRequest();
         requestingLocationUpdates = true;
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // Temporary text views to display latitude and longitude
-        textView_location = findViewById(R.id.textView_location);
-        textView_json = findViewById(R.id.textView_json);
-
         // Queue of the stored filenames.
-        fileNames = new LinkedList<String>();
+        //fileNames = new LinkedList<String>();
 
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 //writeLocationToFile(locationResult);
                 for (Location location : locationResult.getLocations()) {
-                    GPSRecord currentGPSRecord = new GPSRecord(location);
-                    Gson gson = new Gson();
-                    String json = gson.toJson(currentGPSRecord);
+                    List<Float> x = new ArrayList<>();
+                    List<Float> y = new ArrayList<>();
+                    List<Float> z = new ArrayList<>();
+                    List<Float> angle = new ArrayList<>();
+                    List<Float> dX = new ArrayList<>();
+                    List<Float> dY = new ArrayList<>();
+                    List<Float> dZ = new ArrayList<>();
+                    try {
+                        x.add(accelerometerEvents.get(0).values[0]);
+                        y.add(accelerometerEvents.get(0).values[1]);
+                        z.add(accelerometerEvents.get(0).values[2]);
+                        angle.add(compassEvents.get(0).values[0]);
+                        dX.add(gyroscopeEvents.get(0).values[0]);
+                        dY.add(gyroscopeEvents.get(0).values[1]);
+                        dZ.add(gyroscopeEvents.get(0).values[2]);
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+                    currentMoveData = new MoveDataDTO();
+                    currentMoveData.setCompetitorID(competitor_id);
+                    currentMoveData.setBoatID(boat_id);
+                    currentMoveData.setRaceID(race_id);
+                    currentMoveData.setTimeMilli(location.getTime());
+                    currentMoveData.setLatitude((float) location.getLatitude());
+                    currentMoveData.setLongitude((float) location.getLongitude());
+                    currentMoveData.setX(x);
+                    currentMoveData.setY(y);
+                    currentMoveData.setZ(z);
+                    currentMoveData.setAngle(angle);
+                    currentMoveData.setdX(dX);
+                    currentMoveData.setdY(dY);
+                    currentMoveData.setdZ(dZ);
+                    new HttpRequestTask().execute();
+                    accelerometerEvents = new ArrayList<>();
+                    compassEvents = new ArrayList<>();
+                    gyroscopeEvents = new ArrayList<>();
                 }
             }
         };
@@ -109,6 +181,12 @@ public class RecordActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         if (requestingLocationUpdates) {
+            sensorManager.registerListener(this, accelerometer,
+                    SensorManager.SENSOR_DELAY_FASTEST);
+            sensorManager.registerListener(this, compass,
+                    SensorManager.SENSOR_DELAY_FASTEST);
+            sensorManager.registerListener(this, gyroscope,
+                    SensorManager.SENSOR_DELAY_FASTEST);
             startLocationUpdates();
         }
     }
@@ -117,6 +195,7 @@ public class RecordActivity extends AppCompatActivity
     protected void onPause() {
         super.onPause();
         requestingLocationUpdates = false;
+        sensorManager.unregisterListener(this);
         stopLocationUpdates();
     }
 
@@ -179,6 +258,7 @@ public class RecordActivity extends AppCompatActivity
         fusedLocationClient.removeLocationUpdates(locationCallback);
     }
 
+    /*
     private void writeLocationToFile(LocationResult locationResult) {
         String filename = Calendar.getInstance().getTimeInMillis() + ".txt";
         try {
@@ -187,8 +267,6 @@ public class RecordActivity extends AppCompatActivity
             for (Location location : locationResult.getLocations()) {
                 outputStreamWriter.write("Lat: " + location.getLatitude() + ", Long: " +
                         location.getLongitude() + "\n\r");
-                textView_location.setText("Lat: " + location.getLatitude() + ", Long: " +
-                        location.getLongitude());
             }
             outputStreamWriter.close();
         } catch (IOException e) {
@@ -196,7 +274,9 @@ public class RecordActivity extends AppCompatActivity
         }
         fileNames.add(filename);
     }
+    */
 
+    /*
     private String readLastLocationFromFile() {
         String result = "";
         String file = fileNames.element();
@@ -223,6 +303,26 @@ public class RecordActivity extends AppCompatActivity
         }
         return result;
     }
+    */
+
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
+    public void onSensorChanged(SensorEvent event) {
+        switch (event.sensor.getType()) {
+            case 1:
+                accelerometerEvents.add(event);
+                break;
+            case 3:
+                compassEvents.add(event);
+                break;
+            case 4:
+                gyroscopeEvents.add(event);
+                break;
+        }
+
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[],
@@ -243,6 +343,33 @@ public class RecordActivity extends AppCompatActivity
     public void stopRecord(View view) {
         onPause();
         finish();
+    }
+
+    private class HttpRequestTask extends AsyncTask<Void, Void, Long> {
+
+        @Override
+        protected Long doInBackground(Void... params) {
+            try {
+                final String url = getResources().getString((R.string.server_address)) +
+                        "/movedata/add";
+                RestTemplate restTemplate = new RestTemplate();
+                restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+                restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+                Long id = restTemplate.postForObject(url, currentMoveData, Long.class);
+                return id;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Long id) {
+            if (id != null) {
+
+            }
+        }
+
     }
 
 }

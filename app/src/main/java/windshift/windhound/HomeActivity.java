@@ -8,13 +8,23 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.HashSet;
+
+import windshift.windhound.adapters.TabsAdapter;
+import windshift.windhound.fragments.ChampionshipFragment;
+import windshift.windhound.fragments.EventFragment;
+import windshift.windhound.fragments.RaceFragment;
+import windshift.windhound.objects.Event;
+import windshift.windhound.objects.Race;
+
 public class HomeActivity extends AppCompatActivity {
 
+    TabsAdapter tabsAdapter;
     private Toolbar toolbar;
-    private TabsPagerAdapter tabsPagerAdapter;
     private ViewPager viewPager;
     private TabLayout tabLayout;
-    public static final String EXTRA_RACE_ID = "windshift.windhound.RACE_ID";
     public static final String EXTRA_UPCOMING_BOOL = "windshift.windhound.UPCOMING_BOOL";
 
     @Override
@@ -22,33 +32,81 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        // Enables the toolbar
+        // enables the toolbar
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Enables the tab layout with swiping
-        tabsPagerAdapter = new TabsPagerAdapter(getSupportFragmentManager());
+        // enables the tab layout
         viewPager = findViewById(R.id.viewPager);
-        viewPager.setAdapter(tabsPagerAdapter);
+        setupViewPager(viewPager);
         tabLayout = findViewById(R.id.tabLayout);
         tabLayout.setupWithViewPager(viewPager);
 
-        // Gives each tab an icon
-        tabLayout.getTabAt(0).setIcon(R.drawable.ic_championship);
-        tabLayout.getTabAt(1).setIcon(R.drawable.ic_event);
-        tabLayout.getTabAt(2).setIcon(R.drawable.ic_race);
+        // tab layout configuration
+        tabLayout.getTabAt(0).setText(R.string.title_championship);
+        tabLayout.getTabAt(1).setText(R.string.title_event);
+        tabLayout.getTabAt(2).setText(R.string.title_race);
     }
 
-    // Called when an event is clicked
-    public void displayRace(View view, int race, boolean upcoming) {
-        Intent intent = new Intent(this, RaceActivity.class);
-        if (upcoming) {
-            intent.putExtra(EXTRA_UPCOMING_BOOL, "true");
-            intent.putExtra(EXTRA_RACE_ID, String.valueOf(race + 1));
-        } else {
-            intent.putExtra(EXTRA_UPCOMING_BOOL, "false");
-            intent.putExtra(EXTRA_RACE_ID, String.valueOf(race + 1));
+    private void setupViewPager(ViewPager viewPager) {
+        viewPager.setOffscreenPageLimit(2);
+        tabsAdapter = new TabsAdapter(getSupportFragmentManager());
+        tabsAdapter.addFragment(new ChampionshipFragment());
+        tabsAdapter.addFragment(new EventFragment());
+        tabsAdapter.addFragment(new RaceFragment());
+        viewPager.setAdapter(tabsAdapter);
+    }
+
+    // Called when a race/event/championship entry is selected
+    public void display(Long id, int type) {
+        switch (type) {
+            case 0: // ongoing championship
+            case 1: // past championship
+                break;
+            case 2: // ongoing event
+            case 3: // past event
+                // both event cases handled
+                EventFragment ef = (EventFragment) tabsAdapter.getItem(1);
+                Event currentEvent = ef.getEvent(id);
+                // launch display event activity
+                break;
+            case 4: // ongoing race
+            case 5: // past race
+                // both race cases handled
+                RaceFragment rf = (RaceFragment) tabsAdapter.getItem(2);
+                Race currentRace = rf.getRace(id);
+                Intent intent = new Intent(this, RaceActivity.class);
+                intent.putExtra("Race", currentRace);
+                if (type == 4) {
+                    intent.putExtra(EXTRA_UPCOMING_BOOL, "true");
+                } else {
+                    intent.putExtra(EXTRA_UPCOMING_BOOL, "false");
+                }
+                startActivity(intent);
+                break;
         }
+    }
+
+    // Called when the floating add button is pressed in the race tab
+    public void addRace(View view) {
+        Intent intent = new Intent(this, AddRaceActivity.class);
         startActivity(intent);
     }
+
+    // Called when the test floating action button is pressed in the race tab
+    public void testRace(View view) {
+        long testID = 64;
+        HashSet<Long> admins = new HashSet<>(Arrays.asList(Long.valueOf(0), Long.valueOf(1),
+                Long.valueOf(2)));
+        HashSet<Long> boats = new HashSet<>(Arrays.asList(Long.valueOf(1), Long.valueOf(2),
+                Long.valueOf(3)));
+        HashSet<Long> events = new HashSet<>();
+        Race testRace = new Race(testID, "test_race", Calendar.getInstance(),
+                Calendar.getInstance(), admins, boats, events);
+        Intent intent = new Intent(this, RaceActivity.class);
+        intent.putExtra("Race", testRace);
+        intent.putExtra(EXTRA_UPCOMING_BOOL, "false");
+        startActivity(intent);
+    }
+
 }
