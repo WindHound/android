@@ -15,6 +15,7 @@ import java.util.List;
 import windshift.windhound.R;
 import windshift.windhound.adapters.RecyclerAdapter;
 import windshift.windhound.objects.Championship;
+import windshift.windhound.objects.ChampionshipDTO;
 
 public class OngoingChampionshipFragment extends Fragment {
 
@@ -36,16 +37,16 @@ public class OngoingChampionshipFragment extends Fragment {
         return rootView;
     }
 
-    public void updateList(List<Championship> championships) {
+    public void updateList(List<ChampionshipDTO> championships) {
         Long[] ids = new Long[championships.size()];
         String[] names = new String[championships.size()];
         String[] dates = new String[championships.size()];
         DateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy");
         for (int i = 0; i < championships.size(); i++) {
-            ids[i] = championships.get(i).getID();
+            ids[i] = championships.get(i).getId();
             names[i] = championships.get(i).getName();
-            String start = dateFormat.format(championships.get(i).getStartDate().getTime());
-            String end = dateFormat.format(championships.get(i).getEndDate().getTime());
+            String start = dateFormat.format(championships.get(i).getStartDate());
+            String end = dateFormat.format(championships.get(i).getEndDate());
             if (start.equals(end)) {
                 dates[i] = start;
             } else {

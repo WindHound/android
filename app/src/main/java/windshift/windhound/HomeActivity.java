@@ -16,8 +16,8 @@ import windshift.windhound.adapters.TabsAdapter;
 import windshift.windhound.fragments.ChampionshipFragment;
 import windshift.windhound.fragments.EventFragment;
 import windshift.windhound.fragments.RaceFragment;
-import windshift.windhound.objects.Event;
 import windshift.windhound.objects.Race;
+import windshift.windhound.objects.RaceDTO;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -66,15 +66,17 @@ public class HomeActivity extends AppCompatActivity {
             case 2: // ongoing event
             case 3: // past event
                 // both event cases handled
-                EventFragment ef = (EventFragment) tabsAdapter.getItem(1);
-                Event currentEvent = ef.getEvent(id);
                 // launch display event activity
                 break;
             case 4: // ongoing race
             case 5: // past race
                 // both race cases handled
                 RaceFragment rf = (RaceFragment) tabsAdapter.getItem(2);
-                Race currentRace = rf.getRace(id);
+                RaceDTO selectedRace = rf.getRace(id);
+                Race currentRace = new Race(selectedRace.getId(), selectedRace.getName(),
+                        selectedRace.getStartDate(), selectedRace.getEndDate(),
+                        selectedRace.getAdmins(), selectedRace.getBoats(),
+                        selectedRace.getEvents());
                 Intent intent = new Intent(this, RaceActivity.class);
                 intent.putExtra("Race", currentRace);
                 if (type == 4) {
@@ -96,13 +98,11 @@ public class HomeActivity extends AppCompatActivity {
     // Called when the test floating action button is pressed in the race tab
     public void testRace(View view) {
         long testID = 64;
-        HashSet<Long> admins = new HashSet<>(Arrays.asList(Long.valueOf(0), Long.valueOf(1),
-                Long.valueOf(2)));
-        HashSet<Long> boats = new HashSet<>(Arrays.asList(Long.valueOf(1), Long.valueOf(2),
-                Long.valueOf(3)));
-        HashSet<Long> events = new HashSet<>();
-        Race testRace = new Race(testID, "test_race", Calendar.getInstance(),
-                Calendar.getInstance(), admins, boats, events);
+        Long[] admins = {Long.valueOf(0), Long.valueOf(1), Long.valueOf(2)};
+        Long[] boats = {Long.valueOf(1), Long.valueOf(2), Long.valueOf(3)};
+        Long[] events = {};
+        Race testRace = new Race(testID, "test_race", Calendar.getInstance().getTimeInMillis(),
+                Calendar.getInstance().getTimeInMillis(), admins, boats, events);
         Intent intent = new Intent(this, RaceActivity.class);
         intent.putExtra("Race", testRace);
         intent.putExtra(EXTRA_UPCOMING_BOOL, "false");

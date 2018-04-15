@@ -18,7 +18,7 @@ import java.util.List;
 
 import windshift.windhound.R;
 import windshift.windhound.adapters.TabsAdapter;
-import windshift.windhound.objects.Event;
+import windshift.windhound.objects.EventDTO;
 
 public class EventFragment extends Fragment {
 
@@ -26,7 +26,7 @@ public class EventFragment extends Fragment {
     private TabsAdapter tabsAdapter;
     private TabLayout tabLayout;
 
-    private Event[] events;
+    private EventDTO[] events;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -53,19 +53,19 @@ public class EventFragment extends Fragment {
         viewPager.setAdapter(tabsAdapter);
     }
 
-    public Event getEvent(Long id) {
+    public EventDTO getEvent(Long id) {
         for (int i = 0; i < events.length; i++) {
-            if (events[i].getID() == id) {
+            if (events[i].getId() == id) {
                 return events[i];
             }
         }
         return null;
     }
 
-    private class HttpRequestTask extends AsyncTask<Void, Void, Event[]> {
+    private class HttpRequestTask extends AsyncTask<Void, Void, EventDTO[]> {
 
         @Override
-        protected Event[] doInBackground(Void... params) {
+        protected EventDTO[] doInBackground(Void... params) {
             try {
                 // Requests all event ids, then each race object by event id
                 final String url = getResources().getString((R.string.server_address)) +
@@ -73,11 +73,11 @@ public class EventFragment extends Fragment {
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                 Long[] event_ids = restTemplate.getForObject(url, Long[].class);
-                events = new Event[event_ids.length];
+                events = new EventDTO[event_ids.length];
                 for (int i = 0; i < event_ids.length; i++) {
                     final String eventURL = getResources().getString((R.string.server_address)) +
                             "/structure/event/get/" + event_ids[i].toString();
-                    events[i] = restTemplate.getForObject(eventURL, Event.class);
+                    events[i] = restTemplate.getForObject(eventURL, EventDTO.class);
                 }
                 return events;
             } catch (Exception e) {
@@ -87,13 +87,12 @@ public class EventFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(Event[] events) {
+        protected void onPostExecute(EventDTO[] events) {
             if (events != null) {
-                List<Event> ongoing = new ArrayList<>();
-                List<Event> past = new ArrayList<>();
-                Calendar now = Calendar.getInstance();
+                List<EventDTO> ongoing = new ArrayList<>();
+                List<EventDTO> past = new ArrayList<>();
                 for (int i = 0; i < events.length; i++) {
-                    if (events[i].getEndDate().after(now)) {
+                    if (events[i].getEndDate() > Calendar.getInstance().getTimeInMillis()) {
                         ongoing.add(events[i]);
                     } else {
                         past.add(events[i]);

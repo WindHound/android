@@ -18,8 +18,7 @@ import java.util.List;
 
 import windshift.windhound.R;
 import windshift.windhound.adapters.TabsAdapter;
-import windshift.windhound.objects.Championship;
-import windshift.windhound.objects.Event;
+import windshift.windhound.objects.ChampionshipDTO;
 
 public class ChampionshipFragment extends Fragment {
 
@@ -27,7 +26,7 @@ public class ChampionshipFragment extends Fragment {
     private TabsAdapter tabsAdapter;
     private TabLayout tabLayout;
 
-    private Championship[] championships;
+    private ChampionshipDTO[] championships;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -54,19 +53,19 @@ public class ChampionshipFragment extends Fragment {
         viewPager.setAdapter(tabsAdapter);
     }
 
-    public Championship getChampionship(Long id) {
+    public ChampionshipDTO getChampionship(Long id) {
         for (int i = 0; i < championships.length; i++) {
-            if (championships[i].getID() == id) {
+            if (championships[i].getId() == id) {
                 return championships[i];
             }
         }
         return null;
     }
 
-    private class HttpRequestTask extends AsyncTask<Void, Void, Championship[]> {
+    private class HttpRequestTask extends AsyncTask<Void, Void, ChampionshipDTO[]> {
 
         @Override
-        protected Championship[] doInBackground(Void... params) {
+        protected ChampionshipDTO[] doInBackground(Void... params) {
             try {
                 // Requests all championship ids, then each championship object by championship id
                 final String url = getResources().getString((R.string.server_address)) +
@@ -74,11 +73,11 @@ public class ChampionshipFragment extends Fragment {
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                 Long[] championship_ids = restTemplate.getForObject(url, Long[].class);
-                championships = new Championship[championship_ids.length];
+                championships = new ChampionshipDTO[championship_ids.length];
                 for (int i = 0; i < championship_ids.length; i++) {
                     final String championshipURL = getResources().getString((R.string.server_address)) +
                             "/structure/championship/get/" + championship_ids[i].toString();
-                    championships[i] = restTemplate.getForObject(championshipURL, Championship.class);
+                    championships[i] = restTemplate.getForObject(championshipURL, ChampionshipDTO.class);
                 }
                 return championships;
             } catch (Exception e) {
@@ -88,13 +87,12 @@ public class ChampionshipFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(Championship[] championships) {
+        protected void onPostExecute(ChampionshipDTO[] championships) {
             if (championships != null) {
-                List<Championship> ongoing = new ArrayList<>();
-                List<Championship> past = new ArrayList<>();
-                Calendar now = Calendar.getInstance();
+                List<ChampionshipDTO> ongoing = new ArrayList<>();
+                List<ChampionshipDTO> past = new ArrayList<>();
                 for (int i = 0; i < championships.length; i++) {
-                    if (championships[i].getEndDate().after(now)) {
+                    if (championships[i].getEndDate() > Calendar.getInstance().getTimeInMillis()) {
                         ongoing.add(championships[i]);
                     } else {
                         past.add(championships[i]);

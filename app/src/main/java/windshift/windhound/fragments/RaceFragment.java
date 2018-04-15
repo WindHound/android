@@ -18,7 +18,7 @@ import java.util.List;
 
 import windshift.windhound.R;
 import windshift.windhound.adapters.TabsAdapter;
-import windshift.windhound.objects.Race;
+import windshift.windhound.objects.RaceDTO;
 
 public class RaceFragment extends Fragment {
 
@@ -26,7 +26,7 @@ public class RaceFragment extends Fragment {
     private TabsAdapter tabsAdapter;
     private TabLayout tabLayout;
 
-    private Race[] races;
+    private RaceDTO[] races;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -53,19 +53,19 @@ public class RaceFragment extends Fragment {
         viewPager.setAdapter(tabsAdapter);
     }
 
-    public Race getRace(Long id) {
+    public RaceDTO getRace(Long id) {
         for (int i = 0; i < races.length; i++) {
-            if (races[i].getID() == id) {
+            if (races[i].getId() == id) {
                 return races[i];
             }
         }
         return null;
     }
 
-    private class HttpRequestTask extends AsyncTask<Void, Void, Race[]> {
+    private class HttpRequestTask extends AsyncTask<Void, Void, RaceDTO[]> {
 
         @Override
-        protected Race[] doInBackground(Void... params) {
+        protected RaceDTO[] doInBackground(Void... params) {
             try {
                 // Requests all race ids, then each race object by race id
                 final String url = getResources().getString((R.string.server_address)) +
@@ -73,11 +73,11 @@ public class RaceFragment extends Fragment {
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                 Long[] race_ids = restTemplate.getForObject(url, Long[].class);
-                races = new Race[race_ids.length];
+                races = new RaceDTO[race_ids.length];
                 for (int i = 0; i < race_ids.length; i++) {
                     final String raceURL = getResources().getString((R.string.server_address)) +
                             "/structure/race/get/" + race_ids[i].toString();
-                    races[i] = restTemplate.getForObject(raceURL, Race.class);
+                    races[i] = restTemplate.getForObject(raceURL, RaceDTO.class);
                 }
                 return races;
             } catch (Exception e) {
@@ -87,13 +87,12 @@ public class RaceFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(Race[] races) {
+        protected void onPostExecute(RaceDTO[] races) {
             if (races != null) {
-                List<Race> ongoing = new ArrayList<>();
-                List<Race> past = new ArrayList<>();
-                Calendar now = Calendar.getInstance();
+                List<RaceDTO> ongoing = new ArrayList<>();
+                List<RaceDTO> past = new ArrayList<>();
                 for (int i = 0; i < races.length; i++) {
-                    if (races[i].getEndDate().after(now)) {
+                    if (races[i].getEndDate() > Calendar.getInstance().getTimeInMillis()) {
                         ongoing.add(races[i]);
                     } else {
                         past.add(races[i]);
