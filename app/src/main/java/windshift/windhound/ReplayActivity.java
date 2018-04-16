@@ -1,6 +1,8 @@
 package windshift.windhound;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
@@ -9,6 +11,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -24,14 +27,19 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
 import windshift.windhound.adapters.RecyclerViewAdapter;
+import windshift.windhound.objects.MoveDataDTO;
 import windshift.windhound.objects.Race;
 //import windshift.windhound.objects.MoveDataDTO;
 
@@ -101,8 +109,8 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         }
     }
 
-    private long race_id;
     private Race race;
+    private long race_id;
     private int currentBoatNum = 0;
     private ArrayList<Long> boat_ids;
     Integer numberOfBoats = 0;
@@ -117,6 +125,10 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
     int density = 0;
     private GoogleMap mMap;
     private RecyclerViewAdapter adapter;
+    private MoveDataDTO[] moves;
+    private ArrayList<Pair<Long,MoveDataDTO>> boatsAndMoves = new ArrayList<>();
+    private boolean loaded = false;
+    private long totalMoves = 0;
 
     public void detailsExpandAndContract(View v) {
         ConstraintSet constraintSet = new ConstraintSet();
@@ -168,6 +180,7 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("CREATION","App is running!");
         setContentView(R.layout.activity_replay);
 
         // get the race object to be replayed
@@ -175,19 +188,14 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         race = (Race) intent.getSerializableExtra("Race");
 
         //TODO **UNCOMMENT THIS WHEN MOVING TO SERVER**
-//        //Placeholder code
-//        HashSet<Long> boatIdsIn = Race(race_id).getBoats();
-//        //End placeholder code
+//        HashSet<Long> boatIdsIn = race.getBoats();
+//        race_id = race.getID();
 //        boat_ids = new ArrayList<>(boatIdsIn);
 
-
         //TODO **COMMENT THIS OUT WHEN MOVING TO SERVER**
-        race_id=0;
+        race_id=82;
         boat_ids = new ArrayList<>();
-        boat_ids.add((long) 0);
-        boat_ids.add((long) 1);
         boat_ids.add((long) 2);
-        boat_ids.add((long) 3);
 
 
         DisplayMetrics metrics = new DisplayMetrics();
@@ -222,97 +230,132 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         });
     }
 
-    ArrayList<Pair<Calendar,LatLng>> getTimesAndLocationsForBoat(long raceID, long boatID) {
+    private class HttpRequestMoveDataDTO extends AsyncTask<Void, Void, ArrayList<Pair<Long,MoveDataDTO>>> {
+        @Override
+        protected ArrayList<Pair<Long,MoveDataDTO>> doInBackground(Void... params) {
+            try {
+                RestTemplate restTemplate = new RestTemplate();
+                restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+                for (int i=0;i<boat_ids.size();i++) {
+                    final String raceURL = getResources().getString((R.string.server_address)) +
+                            "/movedata/get/" + Long.toString(race_id) + "/" + Long.toString(boat_ids.get(i));
+                    Log.d("TEST",raceURL);
+                    moves =restTemplate.getForObject(raceURL, MoveDataDTO[].class);
+                    Log.d("TEST","Complete");
+                    for (int j=0;j<moves.length;j++) {
+                        boatsAndMoves.add(new Pair<>(boat_ids.get(i),moves[j]));
+                    }
+                }
+                loaded=true;
+                return boatsAndMoves;
+                } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Pair<Long, MoveDataDTO>> pairs) {
+            loaded=true;
+        }
+    }
+
+
+    ArrayList<Pair<Calendar,LatLng>> getTimesAndLocationsForBoat(long boatID) {
         ArrayList<Pair<Calendar,LatLng>> output = new ArrayList<>();
 
         //TODO: Uncomment this when moving to server.
-//        final String url = getResources().getString((R.string.server_address)) +
-//                "/movedata/get/"+Long.toString(raceID);
-//        RestTemplate restTemplate = new RestTemplate();
-//        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-//        MoveDataDTO[] moves = restTemplate.getForObject(url, MoveDataDTO[].class);
-//        for (int i=0;i<moves.length;i++) {
-//            LatLng coords = new LatLng(moves[i].getLatitude(),moves[i].getLongitude());
-//            Calendar time=Calendar.getInstance();
-//            time.setTimeInMillis(moves[i].getTimeMilli());
-//            Pair<Calendar,LatLng> p = new Pair(time,coords);
-//            output.add(p);
-//        }
+        ArrayList<MoveDataDTO> filteredMoves = new ArrayList<>();
+        for (int i=0;i<totalMoves;i++) {
+            long currentID = boatsAndMoves.get(i).first.longValue();
+            MoveDataDTO currentMove = boatsAndMoves.get(i).second;
+            if (currentID == boatID) {
+                filteredMoves.add(currentMove);
+            }
+        }
+        for (int i=0;i<filteredMoves.size();i++) {
+            //TODO: Change this back the correct way around once it's fixed server-side
+            LatLng coords = new LatLng(filteredMoves.get(i).getLongitude(),filteredMoves.get(i).getLatitude());
+            Calendar time=Calendar.getInstance();
+            time.setTimeInMillis(filteredMoves.get(i).getTimeMilli());
+            Pair<Calendar,LatLng> p = new Pair<>(time,coords);
+            output.add(p);
+        }
 
 
 
         //TODO: Comment this out when moving to server.
         //Temporary way to 'fake' getting data from server.
-        if (raceID==0) {
-            if (boatID==0) {
-                Calendar c1 = Calendar.getInstance();
-                LatLng l1=new LatLng(51.455792, -2.603306);
-                c1.setTimeInMillis(0);
-                Pair<Calendar,LatLng> p1 = new Pair<>(c1,l1);
-                Calendar c2 = Calendar.getInstance();
-                LatLng l2=new LatLng(51.455622, -2.603381);
-                c1.setTimeInMillis(50);
-                Pair<Calendar,LatLng> p2 = new Pair<>(c2,l2);
-                Calendar c3 = Calendar.getInstance();
-                LatLng l3=new LatLng(51.455896, -2.604561);
-                c1.setTimeInMillis(100);
-                Pair<Calendar,LatLng> p3 = new Pair<>(c3,l3);
-                output.add(p1);
-                output.add(p2);
-                output.add(p3);
-            }
-            if (boatID==1) {
-                Calendar c1 = Calendar.getInstance();
-                c1.setTimeInMillis(0);
-                LatLng l1 = new LatLng (51.456133, -2.602818);
-                Pair<Calendar,LatLng> p1 = new Pair<>(c1,l1);
-                Calendar c2 = Calendar.getInstance();
-                c2.setTimeInMillis(25);
-                LatLng l2 = new LatLng (51.456160, -2.601976);
-                Pair<Calendar,LatLng> p2 = new Pair<>(c2,l2);
-                output.add(p1);
-                output.add(p2);
-            }
-            if (boatID==2) {
-                Calendar c1 = Calendar.getInstance();
-                c1.setTimeInMillis(0);
-                LatLng l1 = new LatLng (51.455511, -2.602914);
-                Pair<Calendar,LatLng> p1 = new Pair<>(c1,l1);
-                Calendar c2 = Calendar.getInstance();
-                c2.setTimeInMillis(1);
-                LatLng l2 = new LatLng (51.455183, -2.603563);
-                Pair<Calendar,LatLng> p2 = new Pair<>(c2,l2);
-                Calendar c3 = Calendar.getInstance();
-                c3.setTimeInMillis(2);
-                LatLng l3 = new LatLng (51.455661, -2.604287);
-                Pair<Calendar,LatLng> p3 = new Pair<>(c3,l3);
-                output.add(p1);
-                output.add(p2);
-                output.add(p3);
-            }
-            if (boatID==3) {
-                Calendar c1 = Calendar.getInstance();
-                c1.setTimeInMillis(0);
-                LatLng l1 = new LatLng (51.456012, -2.605435);
-                Pair<Calendar,LatLng> p1 = new Pair<>(c1,l1);
-                Calendar c2 = Calendar.getInstance();
-                c2.setTimeInMillis(0);
-                LatLng l2 = new LatLng (51.456279, -2.606089);
-                Pair<Calendar,LatLng> p2 = new Pair<>(c2,l2);
-                Calendar c3 = Calendar.getInstance();
-                c3.setTimeInMillis(0);
-                LatLng l3 = new LatLng (51.456032, -2.606143);
-                Pair<Calendar,LatLng> p3 = new Pair<>(c3,l3);
-                Calendar c4 = Calendar.getInstance();
-                c4.setTimeInMillis(0);
-                LatLng l4 = new LatLng (51.456045, -2.607838);
-                Pair<Calendar,LatLng> p4 = new Pair<>(c4,l4);
-                output.add(p1);
-                output.add(p2);
-                output.add(p3);
-                output.add(p4);
-            }
-        }
+//            totalMoves=12;
+//            if (boatID==0) {
+//                Calendar c1 = Calendar.getInstance();
+//                LatLng l1=new LatLng(51.455792, -2.603306);
+//                c1.setTimeInMillis(0);
+//                Pair<Calendar,LatLng> p1 = new Pair<>(c1,l1);
+//                Calendar c2 = Calendar.getInstance();
+//                LatLng l2=new LatLng(51.455622, -2.603381);
+//                c1.setTimeInMillis(50);
+//                Pair<Calendar,LatLng> p2 = new Pair<>(c2,l2);
+//                Calendar c3 = Calendar.getInstance();
+//                LatLng l3=new LatLng(51.455896, -2.604561);
+//                c1.setTimeInMillis(100);
+//                Pair<Calendar,LatLng> p3 = new Pair<>(c3,l3);
+//                output.add(p1);
+//                output.add(p2);
+//                output.add(p3);
+//            }
+//            if (boatID==1) {
+//                Calendar c1 = Calendar.getInstance();
+//                c1.setTimeInMillis(0);
+//                LatLng l1 = new LatLng (51.456133, -2.602818);
+//                Pair<Calendar,LatLng> p1 = new Pair<>(c1,l1);
+//                Calendar c2 = Calendar.getInstance();
+//                c2.setTimeInMillis(25);
+//                LatLng l2 = new LatLng (51.456160, -2.601976);
+//                Pair<Calendar,LatLng> p2 = new Pair<>(c2,l2);
+//                output.add(p1);
+//                output.add(p2);
+//            }
+//            if (boatID==2) {
+//                Calendar c1 = Calendar.getInstance();
+//                c1.setTimeInMillis(0);
+//                LatLng l1 = new LatLng (51.455511, -2.602914);
+//                Pair<Calendar,LatLng> p1 = new Pair<>(c1,l1);
+//                Calendar c2 = Calendar.getInstance();
+//                c2.setTimeInMillis(1);
+//                LatLng l2 = new LatLng (51.455183, -2.603563);
+//                Pair<Calendar,LatLng> p2 = new Pair<>(c2,l2);
+//                Calendar c3 = Calendar.getInstance();
+//                c3.setTimeInMillis(2);
+//                LatLng l3 = new LatLng (51.455661, -2.604287);
+//                Pair<Calendar,LatLng> p3 = new Pair<>(c3,l3);
+//                output.add(p1);
+//                output.add(p2);
+//                output.add(p3);
+//            }
+//            if (boatID==3) {
+//                Calendar c1 = Calendar.getInstance();
+//                c1.setTimeInMillis(0);
+//                LatLng l1 = new LatLng (51.456012, -2.605435);
+//                Pair<Calendar,LatLng> p1 = new Pair<>(c1,l1);
+//                Calendar c2 = Calendar.getInstance();
+//                c2.setTimeInMillis(0);
+//                LatLng l2 = new LatLng (51.456279, -2.606089);
+//                Pair<Calendar,LatLng> p2 = new Pair<>(c2,l2);
+//                Calendar c3 = Calendar.getInstance();
+//                c3.setTimeInMillis(0);
+//                LatLng l3 = new LatLng (51.456032, -2.606143);
+//                Pair<Calendar,LatLng> p3 = new Pair<>(c3,l3);
+//                Calendar c4 = Calendar.getInstance();
+//                c4.setTimeInMillis(0);
+//                LatLng l4 = new LatLng (51.456045, -2.607838);
+//                Pair<Calendar,LatLng> p4 = new Pair<>(c4,l4);
+//                output.add(p1);
+//                output.add(p2);
+//                output.add(p3);
+//                output.add(p4);
+//            }
+
 
         return output;
     }
@@ -359,17 +402,24 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
             }
         };
 
-
+        boat_ids = boat_ids;
+        new HttpRequestMoveDataDTO().execute();
+        while (!loaded) {
+            //Wait until data has been loaded from the server.
+        }
+        totalMoves=boatsAndMoves.size();
         for (int i=0;i<numberOfBoats;i++) {
             Long boat_id = boat_ids.get(i);
-            ArrayList<LatLng> path = sortLocationsByTime(getTimesAndLocationsForBoat(race_id,boat_id));
-            paths.add(path);
-            Integer colour =displayColours.get(i);
-            boat newBoat = new boat(boat_id.toString(),colour,path);
-            ArrayList<Integer> score = new ArrayList<>();
-            score.add(0);
-            scoreList.add(score);
-            boats.add(newBoat);
+            ArrayList<LatLng> path = sortLocationsByTime(getTimesAndLocationsForBoat(boat_id));
+            if (!path.isEmpty()) {
+                paths.add(path);
+                Integer colour =displayColours.get(i);
+                boat newBoat = new boat(boat_id.toString(),colour,path);
+                ArrayList<Integer> score = new ArrayList<>();
+                score.add(0);
+                scoreList.add(score);
+                boats.add(newBoat);
+            }
         }
 
 
@@ -429,6 +479,7 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         for (int i = 0;i<boats.size();i++) {
             PolylineOptions newLine = new PolylineOptions();
             newLine.add(boats.get(i).getCoordinates().get(0));
+//            newLine.color(Color.RED);
             newLine.color(boats.get(i).getDisplayColour()+0xff000000);
             newLine.width(4);
             racePathOptions.add(newLine);
