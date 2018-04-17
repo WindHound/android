@@ -14,7 +14,7 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="0dp"
         map:layout_constraintBottom_toTopOf="@+id/details"
         map:layout_constraintEnd_toEndOf="parent"
         map:layout_constraintHorizontal_bias="0.0"
@@ -50,7 +50,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/details"
+        android:id="@+id/detailsTitle"
         android:layout_width="0dp"
         android:layout_height="45dp"
         android:ems="10"
@@ -58,11 +58,27 @@
         android:textSize="35sp"
         android:onClick="detailsExpandAndContract"
         android:clickable="true"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/details"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/map" />
+
+    <TextView
+        android:id="@+id/details"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:ems="10"
+        android:text=""
+        android:textSize="15sp"
+        android:onClick="detailsExpandAndContract"
+        android:clickable="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/detailsTitle" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/leaderboard"
