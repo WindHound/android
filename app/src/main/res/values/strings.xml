@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">WindHound</string>
-    <string name="username_message">Username</string>
+    <string name="username_message">Username/Email</string>
     <string name="password_message">Password</string>
     <string name="button_login">Login</string>
     <string name="button_forgot">Forgot your password?</string>
@@ -28,4 +28,8 @@
     <string name="title_ongoing">Ongoing</string>
     <string name="title_past">Past</string>
     <string name="button_save">Save</string>
+    <string name="title_signup">Create account</string>
+    <string name="create">Create</string>
+    <string name="email_field">Email:</string>
+    <string name="password_field">Password:</string>
 </resources>

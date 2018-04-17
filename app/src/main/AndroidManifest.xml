@@ -33,7 +33,6 @@
         <activity android:name=".ReplayActivity" />
         <activity android:name=".AddRaceActivity" />
         <activity android:name=".SelectActivity" />
-        <activity android:name=".SignUpActivity"></activity>
     </application>
 
 </manifest>
