@@ -37,7 +37,6 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MapView mapView;
     private Race race;
     private String[] raceInfo;
-    public static final String EXTRA_RACE_ID = "windshift.windhound.RACE_ID";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,7 +127,7 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void recordEvent() {
         if (boatSelected) {
             Intent intent = new Intent(this, RecordActivity.class);
-            intent.putExtra(EXTRA_RACE_ID, String.valueOf(race.getId()));
+            intent.putExtra("Race", race);
             startActivity(intent);
         } else {
             Toast toast = Toast.makeText(this, "Please select a boat.",

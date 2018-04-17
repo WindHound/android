@@ -157,7 +157,8 @@ public class AddRaceActivity extends AppCompatActivity implements
         Long[] admins = {Long.valueOf(0), Long.valueOf(1), Long.valueOf(2)};
         Long[] boats = {Long.valueOf(1), Long.valueOf(2), Long.valueOf(3)};
         Long[] events = {};
-        //newRace = new Race(null, raceName, startCalendar, endCalendar, admins, boats, events);
+        newRace = new RaceDTO(null, raceName, startCalendar.getTimeInMillis(),
+                endCalendar.getTimeInMillis(), admins, boats, events);
         new HttpRequestTask().execute();
     }
 
@@ -167,7 +168,7 @@ public class AddRaceActivity extends AppCompatActivity implements
         protected Long doInBackground(Void... params) {
             try {
                 final String url = getResources().getString((R.string.server_address)) +
-                        "/structure/race/add/";
+                        "/structure/race/add";
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                 Long id = restTemplate.postForObject(url, newRace, Long.class);

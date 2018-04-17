@@ -17,7 +17,9 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -51,6 +53,7 @@ import java.util.List;
 import java.util.Queue;
 
 import windshift.windhound.objects.MoveDataDTO;
+import windshift.windhound.objects.Race;
 
 public class RecordActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback, SensorEventListener {
@@ -59,7 +62,9 @@ public class RecordActivity extends AppCompatActivity
     protected static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0x1;
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
-    // ids to record for
+    // race to record for
+    private Race race;
+
     private long competitor_id;
     private long race_id;
     private long boat_id;
@@ -87,14 +92,15 @@ public class RecordActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
 
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         // get the id of the race to be recorded
         Intent intent = getIntent();
-        race_id = Long.parseLong(intent.getStringExtra(RaceActivity.EXTRA_RACE_ID));
+        race = (Race) intent.getSerializableExtra("Race");
 
-        // TODO remove testing ids
         competitor_id = 8;
-        race_id = 41;
-        boat_id = 8;
+        race_id = race.getId();
+        boat_id = 2;
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         // default sensors could be NULL
@@ -366,7 +372,7 @@ public class RecordActivity extends AppCompatActivity
         @Override
         protected void onPostExecute(Long id) {
             if (id != null) {
-
+                Log.d("SEND", "Successfully sent moveData.");
             }
         }
 
