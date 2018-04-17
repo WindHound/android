@@ -100,7 +100,7 @@ public class RecordActivity extends AppCompatActivity
 
         competitor_id = 8;
         race_id = race.getId();
-        boat_id = 2;
+        boat_id = Long.parseLong(intent.getStringExtra("Boat"));
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         // default sensors could be NULL

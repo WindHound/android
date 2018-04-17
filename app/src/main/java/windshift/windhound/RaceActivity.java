@@ -34,6 +34,7 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private ArrayAdapter<String> adapter;
     private boolean boatSelected;
+    private long boatNum;
     private MapView mapView;
     private Race race;
     private String[] raceInfo;
@@ -128,6 +129,7 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (boatSelected) {
             Intent intent = new Intent(this, RecordActivity.class);
             intent.putExtra("Race", race);
+            intent.putExtra("Boat", String.valueOf(boatNum));
             startActivity(intent);
         } else {
             Toast toast = Toast.makeText(this, "Please select a boat.",
@@ -161,6 +163,7 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onDialogBoatClick(String boat) {
+        boatNum = Long.parseLong(boat);
         raceInfo[2] = "Boat: " + boat;
         adapter.notifyDataSetChanged();
         boatSelected = true;
