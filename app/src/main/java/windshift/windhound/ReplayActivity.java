@@ -1,7 +1,9 @@
 package windshift.windhound;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
@@ -11,12 +13,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ImageSpan;
 import android.transition.TransitionManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
+import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -26,12 +36,14 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -141,8 +153,13 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
     private long totalMoves = 0;
     private boolean priorPauseStatus = false;
     private DecimalFormat twoDecimalPlaces = new DecimalFormat("0.00");
+    private boolean mapCentred = false;
+    private LatLngBounds boundary;
+    private int padding;
+    private boolean boundarySet=false;
 
-    public void detailsExpandAndContract(View v) {
+    public void detailsExpandAndContract() {
+        expandedDetails=expandedDetails;
         ConstraintSet constraintSet = new ConstraintSet();
         ConstraintLayout current = findViewById(R.id.overallLayout);
         constraintSet.clone(current);
@@ -152,6 +169,7 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
             constraintSet.setVisibility(R.id.map,ConstraintSet.VISIBLE);
             constraintSet.setVisibility(R.id.toggleButton,ConstraintSet.VISIBLE);
             constraintSet.setVisibility(R.id.details,ConstraintSet.GONE);
+//            constraintSet.setVisibility(R.id.postList,ConstraintSet.GONE);
             constraintSet.connect(R.id.detailsTitle,ConstraintSet.TOP,R.id.map,ConstraintSet.BOTTOM);
 //            constraintSet.constrainHeight(R.id.seekBar,(36*density/160));
 //            constraintSet.constrainHeight(R.id.map,ConstraintSet.MATCH_CONSTRAINT);
@@ -166,6 +184,7 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
             constraintSet.setVisibility(R.id.map,ConstraintSet.GONE);
             constraintSet.setVisibility(R.id.toggleButton,ConstraintSet.GONE);
             constraintSet.setVisibility(R.id.details,ConstraintSet.VISIBLE);
+//            constraintSet.setVisibility(R.id.postList,ConstraintSet.VISIBLE);
             constraintSet.connect(R.id.detailsTitle,ConstraintSet.TOP,R.id.leaderboard,ConstraintSet.BOTTOM);
 //            constraintSet.constrainHeight(R.id.seekBar,0);
 //            constraintSet.constrainHeight(R.id.toggleButton,0);
@@ -173,6 +192,10 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
 //            constraintSet.constrainHeight(R.id.detailsTitle,ConstraintSet.MATCH_CONSTRAINT);
 //            constraintSet.constrainHeight(R.id.detailsTitle,(45*density/160));
             showFullDetails(currentBoatNum);
+            if (!mapCentred) {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(boundary,padding));
+                mapCentred=true;
+            }
         }
         expandedDetails = !expandedDetails;
         if (Build.VERSION.SDK_INT>=19) {
@@ -203,22 +226,22 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
     }
 
     void showFullDetails(int index) {
-        String info;
+        ArrayList<String> info = new ArrayList<>();
         int time = step;
         if (time>=maxArraySize) {time=maxArraySize-1;}
-        if (index==-1) {
-            info = "";
-        } else {
+        if (index>-1) {
             boat boat = boats.get(index);
             MoveDataDTO current = separatedMoveData.get(index).get(time);
-            info = "Latitude: "+current.getLongitude() + System.getProperty("line.separator")+
-                "Longitude: "+current.getLatitude() + System.getProperty("line.separator")+
-                "Acceleration: "+twoDecimalPlaces.format(current.getX().get(0)) +
+            info.add("Latitude: "+current.getLongitude());
+            info.add("Longitude: "+current.getLatitude());
+            info.add("Acceleration: "+twoDecimalPlaces.format(current.getX().get(0)) +
                     ", " + twoDecimalPlaces.format(current.getY().get(0)) +
-                    ", " + twoDecimalPlaces.format(current.getZ().get(0));
+                    ", " + twoDecimalPlaces.format(current.getZ().get(0)));
         }
-        TextView details = findViewById(R.id.details);
-        details.setText(info);
+        ArrayAdapter<String> listAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_list_item_1, info);
+        ListView details = findViewById(R.id.details);
+        details.setAdapter(listAdapter);
     }
 
 
@@ -235,12 +258,13 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
     public void onItemClick(View view, int position) {
         currentBoatNum=position;
         showName(currentBoatNum);
-        if (expandedDetails) {showFullDetails(currentBoatNum);}
+        if (expandedDetails) {detailsExpandAndContract();detailsExpandAndContract();}
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mapCentred=false;
         Log.d("CREATION","App is running!");
         setContentView(R.layout.activity_replay);
 
@@ -252,21 +276,23 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
 //        HashSet<Long> boatIdsIn = race.getBoats();
 //        race_id = race.getID();
 //        boat_ids = new ArrayList<>(boatIdsIn);
+//        numberOfBoats = boat_ids.size();
 
-        //TODO **COMMENT THIS OUT WHEN MOVING TO SERVER**
+        //TODO **COMMENT THIS OUT WHEN GETTING BOATS FROM SERVER**
         race_id=83;
         boat_ids = new ArrayList<>();
         boat_ids.add(2L);
+        numberOfBoats=2;
 
-
-        DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        density=metrics.densityDpi;
-        numberOfBoats = boat_ids.size();
         Random rn = new Random();
         for (int i=0;i<numberOfBoats;i++) {
             displayColours.add(rn.nextInt(16777215)+0xff000000);
         }
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        density=metrics.densityDpi;
+        padding = density*60/160;
 
         // set up the RecyclerView
         RecyclerView rView = findViewById(R.id.leaderboard);
@@ -283,11 +309,18 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         mapFragment.getMapAsync(this);
         final SeekBar timeline=findViewById(R.id.seekBar);
         timeline.setOnSeekBarChangeListener(new timelineListener());
+        ToggleButton expandContractToggle = findViewById(R.id.expandContractToggle);
         ToggleButton toggle = findViewById(R.id.toggleButton);
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                ToggleButton toggle = findViewById(R.id.toggleButton);
                 pause=isChecked;
                 priorPauseStatus=isChecked;
+            }
+        });
+        expandContractToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                detailsExpandAndContract();
             }
         });
     }
@@ -295,21 +328,59 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
     private void fakeServerConnection() {
         boat_ids.clear();
         boat_ids.add(0L);
-        MoveDataDTO move = new MoveDataDTO();
-        move.setCompetitorID(0L);
-        move.setBoatID(0L);
-        move.setRaceID(0L);
-        move.setTimeMilli(0L);
-        move.setLatitude(0F);
-        move.setLongitude(0F);
+        boat_ids.add(1L);
+        MoveDataDTO m1 = new MoveDataDTO();
+        m1.setCompetitorID(0L);
+        m1.setBoatID(0L);
+        m1.setRaceID(0L);
+        m1.setTimeMilli(0L);
+        m1.setLatitude(0F);
+        m1.setLongitude(0F);
         ArrayList<Float> accels = new ArrayList<>();
         accels.add(0F);
-        move.setX(accels);
-        move.setY(accels);
-        move.setZ(accels);
-        Long id = new Long(0L);
-        Pair<Long,MoveDataDTO> datum = new Pair<>(id, move);
-        boatsAndMoves.add(datum);
+        m1.setX(accels);
+        m1.setY(accels);
+        m1.setZ(accels);
+        MoveDataDTO m2 = new MoveDataDTO();
+        m2.setCompetitorID(0L);
+        m2.setBoatID(0L);
+        m2.setRaceID(0L);
+        m2.setTimeMilli(1L);
+        m2.setLatitude(0.0001F);
+        m2.setLongitude(-0.001F);
+        m2.setX(accels);
+        m2.setY(accels);
+        m2.setZ(accels);
+        MoveDataDTO m3 = new MoveDataDTO();
+        m3.setCompetitorID(1L);
+        m3.setBoatID(1L);
+        m3.setRaceID(0L);
+        m3.setTimeMilli(0L);
+        m3.setLatitude(0.0001F);
+        m3.setLongitude(0F);
+        m3.setX(accels);
+        m3.setY(accels);
+        m3.setZ(accels);
+        MoveDataDTO m4 = new MoveDataDTO();
+        m4.setCompetitorID(1L);
+        m4.setBoatID(1L);
+        m4.setRaceID(0L);
+        m4.setTimeMilli(1L);
+        m4.setLatitude(0.0002F);
+        m4.setLongitude(0F);
+        m4.setX(accels);
+        m4.setY(accels);
+        m4.setZ(accels);
+        Long id1 = new Long(0L);
+        Long id2 = new Long(1L);
+        Pair<Long,MoveDataDTO> d1 = new Pair<>(id1, m1);
+        Pair<Long,MoveDataDTO> d2 = new Pair<>(id1, m2);
+        Pair<Long,MoveDataDTO> d3 = new Pair<>(id2, m3);
+        Pair<Long,MoveDataDTO> d4 = new Pair<>(id2, m4);
+        boatsAndMoves.add(d1);
+        boatsAndMoves.add(d2);
+        boatsAndMoves.add(d3);
+        boatsAndMoves.add(d4);
         loaded=true;
     }
 
@@ -405,15 +476,17 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         boat_ids = boat_ids;
 
         //TODO: Uncomment when using server.
-        new HttpRequestMoveDataDTO().execute();
+//        new HttpRequestMoveDataDTO().execute();
         //TODO: Comment out when server connection not necessary for testing.
-//        fakeServerConnection();
+        fakeServerConnection();
 
         while (!loaded) {
             //Wait until data has been loaded from the server.
         }
+
         totalMoves=boatsAndMoves.size();
         for (int i=0;i<numberOfBoats;i++) {
+            numberOfBoats=numberOfBoats;
             Long boat_id = boat_ids.get(i);
             ArrayList<MoveDataDTO> data = sortMoveDataByTime(getMoveDataForBoat(boat_id));
             ArrayList<LatLng> path = extractLatLngFromMoveData(data);
@@ -427,10 +500,11 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
                 scoreList.add(score);
                 boats.add(newBoat);
             }
+            numberOfBoats=numberOfBoats;
         }
 
 
-        //Find the centre of the race.
+        //Find the centre and bounds of the race.
         Double overallLat = 0.0;
         Double overallLng = 0.0;
         Integer Points = 0;
@@ -444,6 +518,16 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         overallLat = overallLat / Points;
         overallLng = overallLng / Points;
         LatLng centre = new LatLng(overallLat, overallLng);
+        if (!boundarySet) {
+            boundary = new LatLngBounds(centre,centre);
+            for (ArrayList<LatLng> path: paths) {
+                for (LatLng point: path) {
+                    boundary = boundary.including(point);
+                }
+            }
+            boundarySet=true;
+        }
+
 
         //Find the largest array of all score-lists and paths.
         for (ArrayList<LatLng> path : paths) {
@@ -480,10 +564,16 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         }
 
         //Centre the camera above the race
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(centre, 16));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(centre, 16));
+        if (!expandedDetails) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(boundary,padding));
+            mapCentred=true;
+        }
+
 
 //        Set up paths.
         for (int i = 0;i<boats.size();i++) {
+            i=i;
             PolylineOptions newLine = new PolylineOptions();
             newLine.add(boats.get(i).getCoordinates().get(0));
 //            newLine.color(Color.RED);
@@ -496,5 +586,10 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         mMap.setOnPolylineClickListener(new pathListener());
         handler.post(runnable);
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }

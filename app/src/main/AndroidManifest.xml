@@ -30,7 +30,10 @@
         <activity android:name=".HomeActivity" />
         <activity android:name=".RaceActivity" />
         <activity android:name=".RecordActivity" />
-        <activity android:name=".ReplayActivity" />
+        <activity android:name=".ReplayActivity"
+            android:screenOrientation="portrait"
+            android:configChanges="keyboardHidden|orientation"
+            />
         <activity android:name=".AddRaceActivity" />
         <activity android:name=".SelectActivity" />
     </application>
