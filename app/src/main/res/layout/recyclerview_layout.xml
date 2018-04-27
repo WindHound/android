@@ -4,17 +4,33 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="10dp">
+    android:padding="5dp">
+
+    <View
+        android:id="@+id/backgroundView"
+        android:background="@drawable/basic_oval"
+        android:layout_width="36dp"
+        android:backgroundTint="@android:color/white"
+        android:layout_height="36dp"/>
 
     <View
         android:id="@+id/colorView"
+        android:background="@drawable/basic_oval"
         android:layout_width="30dp"
-        android:layout_height="30dp"/>
+        android:layout_height="30dp"
+        android:layout_marginTop="-33dp"
+        android:layout_marginLeft="3dp"/>
 
     <TextView
         android:id="@+id/boatID"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"/>
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:height="24dp"
+        android:width="24dp"
+        android:paddingBottom="0dp"
+        android:layout_marginLeft="6dp"
+        android:layout_marginTop="-30dp"
+        android:textSize="20dp"
+        android:gravity="center" />
 
 </LinearLayout>

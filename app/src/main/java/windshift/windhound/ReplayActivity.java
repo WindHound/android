@@ -28,6 +28,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -46,6 +47,7 @@ import org.springframework.web.client.RestTemplate;
 import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -58,7 +60,7 @@ import windshift.windhound.objects.MoveDataDTO;
 import windshift.windhound.objects.Race;
 //import windshift.windhound.objects.MoveDataDTO;
 
-public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallback, RecyclerViewAdapter.ItemClickListener {
+public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallback, RecyclerViewAdapter.ItemClickListener, AdapterView.OnItemSelectedListener {
 
     private class boat {
         ArrayList<Integer> scores;
@@ -134,6 +136,7 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
     private long race_id;
     private int currentBoatNum = -1;
     private ArrayList<Long> boat_ids;
+    private List<Long> periods = Arrays.asList(100L,200L,400L,800L,1600L);
     Integer numberOfBoats = 0;
     private ArrayList<Integer> displayColours = new ArrayList<>();
     Boolean pause=false;
@@ -157,40 +160,29 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
     private LatLngBounds boundary;
     private int padding;
     private boolean boundarySet=false;
+    private Long period = 400L;
 
     public void detailsExpandAndContract() {
-        expandedDetails=expandedDetails;
         ConstraintSet constraintSet = new ConstraintSet();
         ConstraintLayout current = findViewById(R.id.overallLayout);
         constraintSet.clone(current);
         if(expandedDetails) {
-            pause=priorPauseStatus;
+//            pause=priorPauseStatus;
             constraintSet.setVisibility(R.id.seekBar,ConstraintSet.VISIBLE);
             constraintSet.setVisibility(R.id.map,ConstraintSet.VISIBLE);
             constraintSet.setVisibility(R.id.toggleButton,ConstraintSet.VISIBLE);
             constraintSet.setVisibility(R.id.details,ConstraintSet.GONE);
-//            constraintSet.setVisibility(R.id.postList,ConstraintSet.GONE);
             constraintSet.connect(R.id.detailsTitle,ConstraintSet.TOP,R.id.map,ConstraintSet.BOTTOM);
-//            constraintSet.constrainHeight(R.id.seekBar,(36*density/160));
-//            constraintSet.constrainHeight(R.id.map,ConstraintSet.MATCH_CONSTRAINT);
-//            constraintSet.constrainHeight(R.id.toggleButton,(36*density/160));
-//            constraintSet.constrainHeight(R.id.detailsTitle,(45*density/160));
             showName(currentBoatNum);
         }
         else {
-            priorPauseStatus=pause;
-            pause=true;
+//            priorPauseStatus=pause;
+//            pause=true;
             constraintSet.setVisibility(R.id.seekBar,ConstraintSet.GONE);
             constraintSet.setVisibility(R.id.map,ConstraintSet.GONE);
             constraintSet.setVisibility(R.id.toggleButton,ConstraintSet.GONE);
             constraintSet.setVisibility(R.id.details,ConstraintSet.VISIBLE);
-//            constraintSet.setVisibility(R.id.postList,ConstraintSet.VISIBLE);
             constraintSet.connect(R.id.detailsTitle,ConstraintSet.TOP,R.id.leaderboard,ConstraintSet.BOTTOM);
-//            constraintSet.constrainHeight(R.id.seekBar,0);
-//            constraintSet.constrainHeight(R.id.toggleButton,0);
-//            constraintSet.constrainHeight(R.id.map,0);
-//            constraintSet.constrainHeight(R.id.detailsTitle,ConstraintSet.MATCH_CONSTRAINT);
-//            constraintSet.constrainHeight(R.id.detailsTitle,(45*density/160));
             showFullDetails(currentBoatNum);
             if (!mapCentred) {
                 mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(boundary,padding));
@@ -214,15 +206,15 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
     }
 
     void showName(int index) {
-        String info;
-        if (index==-1) {
-            info = "Details";
-        } else {
-            boat boat = boats.get(index);
-            info = "Boat " + boat.getName();
-        }
-        TextView details = findViewById(R.id.detailsTitle);
-        details.setText(info);
+//        String info;
+//        if (index==-1) {
+//            info = "";
+//        } else {
+//            boat boat = boats.get(index);
+//            info = "Boat " + boat.getName();
+//        }
+//        TextView details = findViewById(R.id.detailsTitle);
+//        details.setText(info);
     }
 
     void showFullDetails(int index) {
@@ -230,8 +222,8 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         int time = step;
         if (time>=maxArraySize) {time=maxArraySize-1;}
         if (index>-1) {
-            boat boat = boats.get(index);
             MoveDataDTO current = separatedMoveData.get(index).get(time);
+            info.add("Boat Number: "+current.getBoatID());
             info.add("Latitude: "+current.getLongitude());
             info.add("Longitude: "+current.getLatitude());
             info.add("Acceleration: "+twoDecimalPlaces.format(current.getX().get(0)) +
@@ -262,6 +254,24 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
     }
 
     @Override
+    public void onItemSelected(AdapterView<?> parent, View view,
+                               int pos, long id) {
+        period=periods.get(pos);
+    }
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        //Do nothing.
+    }
+
+
+    void createDisplayColours() {
+        Random rn = new Random();
+        for (int i=0;i<numberOfBoats;i++) {
+            displayColours.add(rn.nextInt(16777215)+0xff000000);
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mapCentred=false;
@@ -273,21 +283,18 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         race = (Race) intent.getSerializableExtra("Race");
 
         //TODO **UNCOMMENT THIS WHEN MOVING TO SERVER**
-//        HashSet<Long> boatIdsIn = race.getBoats();
-//        race_id = race.getID();
-//        boat_ids = new ArrayList<>(boatIdsIn);
-//        numberOfBoats = boat_ids.size();
+        HashSet<Long> boatIdsIn = race.getBoats();
+        race_id = race.getID();
+        boat_ids = new ArrayList<>(boatIdsIn);
+        numberOfBoats = boat_ids.size();
 
         //TODO **COMMENT THIS OUT WHEN GETTING BOATS FROM SERVER**
-        race_id=83;
-        boat_ids = new ArrayList<>();
-        boat_ids.add(2L);
-        numberOfBoats=2;
+//        race_id=123;
+//        boat_ids = new ArrayList<>();
+//        boat_ids.add(2L);
+//        numberOfBoats=2;
 
-        Random rn = new Random();
-        for (int i=0;i<numberOfBoats;i++) {
-            displayColours.add(rn.nextInt(16777215)+0xff000000);
-        }
+        createDisplayColours();
 
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -323,15 +330,24 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
                 detailsExpandAndContract();
             }
         });
+        Spinner spinner = findViewById(R.id.speedSelectSpinner);
+        ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.speed_array, android.R.layout.simple_spinner_item);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(spinnerAdapter);
+        spinner.setSelection(2);
+        spinner.setOnItemSelectedListener(this);
     }
 
     private void fakeServerConnection() {
+        long id1 = 82L;
+        long id2 = 999L;
         boat_ids.clear();
-        boat_ids.add(0L);
-        boat_ids.add(1L);
+        boat_ids.add(id1);
+        boat_ids.add(id2);
         MoveDataDTO m1 = new MoveDataDTO();
         m1.setCompetitorID(0L);
-        m1.setBoatID(0L);
+        m1.setBoatID(id1);
         m1.setRaceID(0L);
         m1.setTimeMilli(0L);
         m1.setLatitude(0F);
@@ -343,7 +359,7 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         m1.setZ(accels);
         MoveDataDTO m2 = new MoveDataDTO();
         m2.setCompetitorID(0L);
-        m2.setBoatID(0L);
+        m2.setBoatID(id1);
         m2.setRaceID(0L);
         m2.setTimeMilli(1L);
         m2.setLatitude(0.0001F);
@@ -353,7 +369,7 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         m2.setZ(accels);
         MoveDataDTO m3 = new MoveDataDTO();
         m3.setCompetitorID(1L);
-        m3.setBoatID(1L);
+        m3.setBoatID(id2);
         m3.setRaceID(0L);
         m3.setTimeMilli(0L);
         m3.setLatitude(0.0001F);
@@ -363,7 +379,7 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         m3.setZ(accels);
         MoveDataDTO m4 = new MoveDataDTO();
         m4.setCompetitorID(1L);
-        m4.setBoatID(1L);
+        m4.setBoatID(id2);
         m4.setRaceID(0L);
         m4.setTimeMilli(1L);
         m4.setLatitude(0.0002F);
@@ -371,12 +387,12 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         m4.setX(accels);
         m4.setY(accels);
         m4.setZ(accels);
-        Long id1 = new Long(0L);
-        Long id2 = new Long(1L);
-        Pair<Long,MoveDataDTO> d1 = new Pair<>(id1, m1);
-        Pair<Long,MoveDataDTO> d2 = new Pair<>(id1, m2);
-        Pair<Long,MoveDataDTO> d3 = new Pair<>(id2, m3);
-        Pair<Long,MoveDataDTO> d4 = new Pair<>(id2, m4);
+        Long id1wrapped = new Long(id1);
+        Long id2wrapped = new Long(id2);
+        Pair<Long,MoveDataDTO> d1 = new Pair<>(id1wrapped, m1);
+        Pair<Long,MoveDataDTO> d2 = new Pair<>(id1wrapped, m2);
+        Pair<Long,MoveDataDTO> d3 = new Pair<>(id2wrapped, m3);
+        Pair<Long,MoveDataDTO> d4 = new Pair<>(id2wrapped, m4);
         boatsAndMoves.add(d1);
         boatsAndMoves.add(d2);
         boatsAndMoves.add(d3);
@@ -448,11 +464,7 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         ArrayList<ArrayList<LatLng>> paths = new ArrayList<>();
         ArrayList<ArrayList<Integer>> scoreList = new ArrayList<>();
         ArrayList<PolylineOptions> racePathOptions = new ArrayList<>();
-        final ArrayList<String> leaderboardUFOverTime = new ArrayList<>();
-        final Long period = Long.valueOf(2000);
         final SeekBar timeline=findViewById(R.id.seekBar);
-//        final TextView leaderboardView=findViewById(R.id.leaderboard);
-//        leaderboardView.setSelected(true);
 
         Runnable runnable = new Runnable() {
             @Override
@@ -464,21 +476,18 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
                         List<LatLng> currentCoordinates = boats.get(i).coordinates.subList(0, step);
                         racePaths.get(i).setPoints(currentCoordinates);
                     }
-                    String dataUF = leaderboardUFOverTime.get(step-1);
-//                    leaderboardView.setText(dataUF);
                     Integer raceCompletion = (step*100)/maxArraySize;
                     timeline.setProgress(raceCompletion);
+                    if(expandedDetails) {showFullDetails(currentBoatNum);}
                 }
                 handler.postDelayed(this,period);
             }
         };
 
-        boat_ids = boat_ids;
-
         //TODO: Uncomment when using server.
-//        new HttpRequestMoveDataDTO().execute();
-        //TODO: Comment out when server connection not necessary for testing.
-        fakeServerConnection();
+        new HttpRequestMoveDataDTO().execute();
+        //TODO: Comment out when server connection necessary for testing.
+//        fakeServerConnection();
 
         while (!loaded) {
             //Wait until data has been loaded from the server.
@@ -486,7 +495,6 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
 
         totalMoves=boatsAndMoves.size();
         for (int i=0;i<numberOfBoats;i++) {
-            numberOfBoats=numberOfBoats;
             Long boat_id = boat_ids.get(i);
             ArrayList<MoveDataDTO> data = sortMoveDataByTime(getMoveDataForBoat(boat_id));
             ArrayList<LatLng> path = extractLatLngFromMoveData(data);
@@ -500,7 +508,6 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
                 scoreList.add(score);
                 boats.add(newBoat);
             }
-            numberOfBoats=numberOfBoats;
         }
 
 
@@ -546,25 +553,8 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
             extendArray(score, maxArraySize);
             boats.get(i).setScores(score);
         }
-        maxArraySize=maxArraySize;
-
-        // Create a list to display the leaderboard over time.
-        for (int i=0;i<maxArraySize;i++) {
-            ArrayList<boat> sorted = new ArrayList<>();
-            sorted.addAll(boats);
-            Collections.sort(sorted,new boatComparator(i));
-            String leaderboardUFEntry="";
-            for (int j=0;j<sorted.size();j++) {
-                leaderboardUFEntry=leaderboardUFEntry+sorted.get(j).getName();
-                if(j<sorted.size()-1) {
-                    leaderboardUFEntry = leaderboardUFEntry+" - ";
-                }
-            }
-            leaderboardUFOverTime.add(leaderboardUFEntry);
-        }
 
         //Centre the camera above the race
-//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(centre, 16));
         if (!expandedDetails) {
             mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(boundary,padding));
             mapCentred=true;
@@ -576,7 +566,6 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
             i=i;
             PolylineOptions newLine = new PolylineOptions();
             newLine.add(boats.get(i).getCoordinates().get(0));
-//            newLine.color(Color.RED);
             newLine.color(boats.get(i).getDisplayColour()+0xff000000);
             newLine.width(4);
             racePathOptions.add(newLine);

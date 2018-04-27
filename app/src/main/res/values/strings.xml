@@ -28,4 +28,11 @@
     <string name="title_ongoing">Ongoing</string>
     <string name="title_past">Past</string>
     <string name="button_save">Save</string>
+        <string-array name="speed_array">
+            <item>x4</item>
+            <item>x2</item>
+            <item>x1</item>
+            <item>x0.5</item>
+            <item>x0.25</item>
+        </string-array>
 </resources>
