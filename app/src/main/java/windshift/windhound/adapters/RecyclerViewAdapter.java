@@ -1,10 +1,14 @@
 package windshift.windhound.adapters;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -38,7 +42,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         int color = boatColours.get(position);
-        holder.myView.setBackgroundColor(color);
+        String id = Long.toString(boatIDs.get(position));
+        holder.myTextView.setText(id);
+        if(boatIDs.get(position)>99) {holder.myTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP,12);}
+        holder.myView.setBackgroundTintList(ColorStateList.valueOf(color));
     }
 
     // total number of rows
