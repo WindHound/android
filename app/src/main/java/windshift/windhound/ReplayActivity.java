@@ -283,16 +283,18 @@ public class ReplayActivity extends AppCompatActivity implements OnMapReadyCallb
         race = (Race) intent.getSerializableExtra("Race");
 
         //TODO **UNCOMMENT THIS WHEN MOVING TO SERVER**
-        HashSet<Long> boatIdsIn = race.getBoats();
-        race_id = race.getID();
+        HashSet<Long> boatIdsIn = new HashSet<>(Arrays.asList(race.getBoats()));
+        race_id = race.getId();
         boat_ids = new ArrayList<>(boatIdsIn);
         numberOfBoats = boat_ids.size();
 
         //TODO **COMMENT THIS OUT WHEN GETTING BOATS FROM SERVER**
-//        race_id=123;
-//        boat_ids = new ArrayList<>();
-//        boat_ids.add(2L);
-//        numberOfBoats=2;
+        /*
+        race_id=123;
+        boat_ids = new ArrayList<>();
+        boat_ids.add(2L);
+        numberOfBoats=2;
+        */
 
         createDisplayColours();
 

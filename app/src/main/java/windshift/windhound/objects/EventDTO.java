@@ -1,35 +1,33 @@
 package windshift.windhound.objects;
 
-import java.io.Serializable;
-
-public class Race implements Serializable {
+public class EventDTO {
 
     private Long   id;
     private String name;
     private Long   startDate;
     private Long   endDate;
     private Long[] admins;
-    private Long[] boats;
-    private Long[] events;
+    private Long[] races;
+    private Long[] championships;
 
-    public Race() {
+    public EventDTO() {
 
     }
 
-    public Race(Long   a_id,
-                String a_name,
-                Long   a_startDate,
-                Long   a_endDate,
-                Long[] a_admins,
-                Long[] a_boats,
-                Long[] a_events) {
-        id        = a_id;
-        name      = a_name;
-        startDate = a_startDate;
-        endDate   = a_endDate;
-        admins    = a_admins;
-        boats     = a_boats;
-        events    = a_events;
+    public EventDTO(Long   a_id,
+                    String a_name,
+                    Long   a_startDate,
+                    Long   a_endDate,
+                    Long[] a_admins,
+                    Long[] a_races,
+                    Long[] a_championships) {
+        id            = a_id;
+        name          = a_name;
+        startDate     = a_startDate;
+        endDate       = a_endDate;
+        admins        = a_admins;
+        races         = a_races;
+        championships = a_championships;
     }
 
     public Long getId() {
@@ -72,20 +70,21 @@ public class Race implements Serializable {
         this.admins = admins;
     }
 
-    public Long[] getBoats() {
-        return boats;
+    public Long[] getRaces() {
+        return races;
     }
 
-    public void setBoats(Long[] boats) {
-        this.boats = boats;
+    public void setRaces(Long[] races) {
+        this.races = races;
     }
 
-    public Long[] getEvents() {
-        return events;
+    public Long[] getChampionships() {
+        return championships;
     }
 
-    public void setEvents(Long[] events) {
-        this.events = events;
+    public void setChampionships(Long[] championships) {
+        this.championships = championships;
     }
 
 }
+

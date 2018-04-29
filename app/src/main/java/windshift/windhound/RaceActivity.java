@@ -34,10 +34,10 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private ArrayAdapter<String> adapter;
     private boolean boatSelected;
+    private long boatNum;
     private MapView mapView;
     private Race race;
     private String[] raceInfo;
-    public static final String EXTRA_RACE_ID = "windshift.windhound.RACE_ID";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,8 +85,8 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         DateFormat timeFormat = new SimpleDateFormat("HH:mm");
         // Add event and/or championship this race belongs to
-        raceInfo = new String[] {"Date: " + dateFormat.format(race.getStartDate().getTime()),
-                "Time: " + timeFormat.format(race.getStartDate().getTime()), "Boat: "};
+        raceInfo = new String[] {"Date: " + dateFormat.format(race.getStartDate()),
+                "Time: " + timeFormat.format(race.getStartDate()), "Boat: "};
         adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, raceInfo);
         listView.setAdapter(adapter);
@@ -128,7 +128,8 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void recordEvent() {
         if (boatSelected) {
             Intent intent = new Intent(this, RecordActivity.class);
-            intent.putExtra(EXTRA_RACE_ID, String.valueOf(race.getID()));
+            intent.putExtra("Race", race);
+            intent.putExtra("Boat", String.valueOf(boatNum));
             startActivity(intent);
         } else {
             Toast toast = Toast.makeText(this, "Please select a boat.",
@@ -148,10 +149,10 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
     // Called when the boat list item is pressed
     public void selectBoat() {
         String[] boats;
-        if (race.getBoats().size() != 0) {
-            boats = new String[race.getBoats().size()];
-            for (int i = 0; i < race.getBoats().size(); i++) {
-                boats[i] = String.valueOf(race.getBoats().toArray()[i]);
+        if (race.getBoats().length != 0) {
+            boats = new String[race.getBoats().length];
+            for (int i = 0; i < race.getBoats().length; i++) {
+                boats[i] = String.valueOf(race.getBoats()[i]);
             }
         } else {
             boats = new String[] {"Default"};
@@ -162,6 +163,7 @@ public class RaceActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onDialogBoatClick(String boat) {
+        boatNum = Long.parseLong(boat);
         raceInfo[2] = "Boat: " + boat;
         adapter.notifyDataSetChanged();
         boatSelected = true;

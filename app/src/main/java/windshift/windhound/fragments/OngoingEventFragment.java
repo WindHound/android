@@ -7,7 +7,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -15,7 +14,7 @@ import java.util.List;
 
 import windshift.windhound.R;
 import windshift.windhound.adapters.RecyclerAdapter;
-import windshift.windhound.objects.Event;
+import windshift.windhound.objects.EventDTO;
 
 public class OngoingEventFragment extends Fragment {
 
@@ -37,16 +36,16 @@ public class OngoingEventFragment extends Fragment {
         return rootView;
     }
 
-    public void updateList(List<Event> events) {
+    public void updateList(List<EventDTO> events) {
         Long[] ids = new Long[events.size()];
         String[] names = new String[events.size()];
         String[] dates = new String[events.size()];
         DateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy");
         for (int i = 0; i < events.size(); i++) {
-            ids[i] = events.get(i).getID();
+            ids[i] = events.get(i).getId();
             names[i] = events.get(i).getName();
-            String start = dateFormat.format(events.get(i).getStartDate().getTime());
-            String end = dateFormat.format(events.get(i).getEndDate().getTime());
+            String start = dateFormat.format(events.get(i).getStartDate());
+            String end = dateFormat.format(events.get(i).getEndDate());
             if (start.equals(end)) {
                 dates[i] = start;
             } else {

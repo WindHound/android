@@ -28,6 +28,7 @@ import java.util.HashSet;
 import windshift.windhound.dialogs.DatePickerDialogFragment;
 import windshift.windhound.dialogs.TimePickerDialogFragment;
 import windshift.windhound.objects.Race;
+import windshift.windhound.objects.RaceDTO;
 
 public class AddRaceActivity extends AppCompatActivity implements
         DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
@@ -41,7 +42,7 @@ public class AddRaceActivity extends AppCompatActivity implements
     private Date endDate;
     private DateFormat dateFormat;
     private DateFormat timeFormat;
-    private Race newRace;
+    private RaceDTO newRace;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,12 +154,11 @@ public class AddRaceActivity extends AppCompatActivity implements
         startCalendar.setTime(startDate);
         Calendar endCalendar = Calendar.getInstance();
         endCalendar.setTime(endDate);
-        HashSet<Long> admins = new HashSet<>(Arrays.asList(Long.valueOf(0), Long.valueOf(1),
-                Long.valueOf(2)));
-        HashSet<Long> boats = new HashSet<>(Arrays.asList(Long.valueOf(1), Long.valueOf(2),
-                Long.valueOf(3)));
-        HashSet<Long> events = new HashSet<>();
-        newRace = new Race(null, raceName, startCalendar, endCalendar, admins, boats, events);
+        Long[] admins = {Long.valueOf(0), Long.valueOf(1), Long.valueOf(2)};
+        Long[] boats = {Long.valueOf(1), Long.valueOf(2), Long.valueOf(3)};
+        Long[] events = {};
+        newRace = new RaceDTO(null, raceName, startCalendar.getTimeInMillis(),
+                endCalendar.getTimeInMillis(), admins, boats, events);
         new HttpRequestTask().execute();
     }
 
@@ -168,7 +168,7 @@ public class AddRaceActivity extends AppCompatActivity implements
         protected Long doInBackground(Void... params) {
             try {
                 final String url = getResources().getString((R.string.server_address)) +
-                        "/structure/race/add/";
+                        "/structure/race/add";
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                 Long id = restTemplate.postForObject(url, newRace, Long.class);

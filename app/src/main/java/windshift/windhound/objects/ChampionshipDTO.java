@@ -1,8 +1,6 @@
 package windshift.windhound.objects;
 
-import java.io.Serializable;
-
-public class Championship implements Serializable {
+public class ChampionshipDTO {
 
     private Long   id;
     private String name;
@@ -11,16 +9,16 @@ public class Championship implements Serializable {
     private Long[] admins;
     private Long[] events;
 
-    public Championship() {
+    public ChampionshipDTO() {
 
     }
 
-    public Championship(Long   a_id,
-                        String a_name,
-                        Long   a_startDate,
-                        Long   a_endDate,
-                        Long[] a_admins,
-                        Long[] a_events) {
+    public ChampionshipDTO(Long   a_id,
+                           String a_name,
+                           Long   a_startDate,
+                           Long   a_endDate,
+                           Long[] a_admins,
+                           Long[] a_events) {
         id        = a_id;
         name      = a_name;
         startDate = a_startDate;
@@ -78,3 +76,4 @@ public class Championship implements Serializable {
     }
 
 }
+
