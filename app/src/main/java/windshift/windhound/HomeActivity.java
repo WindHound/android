@@ -43,9 +43,12 @@ public class HomeActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
 
         // tab layout configuration
-        tabLayout.getTabAt(0).setText(R.string.title_championship);
-        tabLayout.getTabAt(1).setText(R.string.title_event);
-        tabLayout.getTabAt(2).setText(R.string.title_race);
+        //tabLayout.getTabAt(0).setText(R.string.title_championship);
+        tabLayout.getTabAt(0).setIcon(R.drawable.ic_championship);
+        //tabLayout.getTabAt(1).setText(R.string.title_event);
+        tabLayout.getTabAt(1).setIcon(R.drawable.ic_event);
+        //tabLayout.getTabAt(2).setText(R.string.title_race);
+        tabLayout.getTabAt(2).setIcon(R.drawable.ic_race);
     }
 
     private void setupViewPager(ViewPager viewPager) {
