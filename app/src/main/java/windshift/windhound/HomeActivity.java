@@ -98,18 +98,4 @@ public class HomeActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    // Called when the test floating action button is pressed in the race tab
-    public void testRace(View view) {
-        long testID = 64;
-        Long[] admins = {Long.valueOf(0), Long.valueOf(1), Long.valueOf(2)};
-        Long[] boats = {Long.valueOf(1), Long.valueOf(2), Long.valueOf(3)};
-        Long[] events = {};
-        Race testRace = new Race(testID, "test_race", Calendar.getInstance().getTimeInMillis(),
-                Calendar.getInstance().getTimeInMillis(), admins, boats, events);
-        Intent intent = new Intent(this, RaceActivity.class);
-        intent.putExtra("Race", testRace);
-        intent.putExtra(EXTRA_UPCOMING_BOOL, "false");
-        startActivity(intent);
-    }
-
 }
