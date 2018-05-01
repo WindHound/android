@@ -41,7 +41,7 @@ public class OngoingChampionshipFragment extends Fragment {
         Long[] ids = new Long[championships.size()];
         String[] names = new String[championships.size()];
         String[] dates = new String[championships.size()];
-        DateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy");
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         for (int i = 0; i < championships.size(); i++) {
             ids[i] = championships.get(i).getId();
             names[i] = championships.get(i).getName();

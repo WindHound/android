@@ -40,7 +40,7 @@ public class OngoingEventFragment extends Fragment {
         Long[] ids = new Long[events.size()];
         String[] names = new String[events.size()];
         String[] dates = new String[events.size()];
-        DateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy");
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         for (int i = 0; i < events.size(); i++) {
             ids[i] = events.get(i).getId();
             names[i] = events.get(i).getName();

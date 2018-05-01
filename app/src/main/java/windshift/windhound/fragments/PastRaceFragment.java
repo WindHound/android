@@ -39,7 +39,7 @@ public class PastRaceFragment extends Fragment {
         Long[] ids = new Long[races.size()];
         String[] names = new String[races.size()];
         String[] dates = new String[races.size()];
-        DateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy");
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         for (int i = 0; i < races.size(); i++) {
             ids[i] = races.get(i).getId();
             names[i] = races.get(i).getName();
